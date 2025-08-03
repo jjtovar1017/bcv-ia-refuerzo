@@ -1,0 +1,6 @@
+{
+  "name": "Asistente de Medios BCV",
+  "description": "Una aplicación web para asistir en la generación de contenido, transcripción de audio y monitoreo de medios para el BCV, utilizando inteligencia artificial.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
