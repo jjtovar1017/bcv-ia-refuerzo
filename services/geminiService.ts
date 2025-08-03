@@ -131,7 +131,27 @@ export async function generateImageWithImagen(
             ]
           }],
           generationConfig: {
-            temperature
+            temperature// Correct named export
+            export function generateBcvContent(topic: string, contentType: string) {
+              // implementation
+            }
+            
+            // OR alternative named export
+            const generateBcvContent = async (...) => {...};
+            export { generateBcvContent };
+            
+            // OR default export
+            export default function generateBcvContent(...) {...}
+            // Add any necessary imports at the top of the file
+            
+            export async function generateBcvContent(
+              topic: string,
+              contentType: string,
+              // ... rest of your function
+            ) {
+              // implementation
+            }
+            
     try {
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
