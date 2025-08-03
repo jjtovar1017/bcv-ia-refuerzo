@@ -1,0 +1,10 @@
+{
+  "appId": "com.bcv.app",
+  "appName": "asistente-de-medios-bcv",
+  "webDir": "dist",
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false
+    }
+  }
+}

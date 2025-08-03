@@ -46,7 +46,92 @@ export async function generateBcvContent(
         ${contextText ? `Contexto adicional: ${contextText}` : ''}
         El contenido debe ser profesional, claro y adecuado para el Banco Central de Venezuela.
     `;
+// geminiService.ts
 
+export async function generateBcvContent(
+  topic: string,
+  contentType: string,
+  model: string,
+  contextText: string
+): Promise<string> {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error("API key for Gemini is not configured.");
+  }
+
+  const prompt = `
+    Genera un ${contentType} sobre el siguiente tema: "${topic}".
+    ${contextText ? `Contexto adicional: ${contextText}` : ''}
+    El contenido debe ser profesional, claro y adecuado para el Banco Central de Venezuela.
+    Por favor, proporciona una respuesta bien estructurada y completa.
+  `.trim();
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{ text: prompt }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            topP: 0.9,
+            maxOutputTokens: 2048
+          }
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Gemini API error:', errorData);
+      throw new Error(`Error al generar contenido con Gemini. Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Extract the generated text from the response
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || 
+           "No se pudo generar contenido. La respuesta de la API fue inesperada.";
+    
+  } catch (error) {
+    console.error('Error in generateBcvContent:', error);
+    throw new Error(`Error al conectar con el servicio Gemini: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+export async function generateImageWithImagen(
+  prompt: string,
+  model: string = "gemini-pro-vision"
+): Promise<string> {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error("API key for Gemini is not configured.");
+  }
+
+  try {
+    // Note: For image generation, you might need to adjust this endpoint
+    // depending on whether you're using Gemini Pro Vision or another service
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: prompt },
+              // If you need to include an image, you would add it here as a base64 part
+              // { inlineData: { mimeType, data } }
+            ]
+          }],
+          generationConfig: {
+            temperature
     try {
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
