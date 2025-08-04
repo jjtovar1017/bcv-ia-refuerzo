@@ -37,11 +37,15 @@ export interface NavigationItem {
 export interface GroundingSource {
     uri: string;
     title: string;
+    snippet?: string;
 }
 
 export interface EconomicNewsResult {
     summary: string;
     sources: GroundingSource[];
+    searchType?: NewsSearchType;
+    totalResults?: number;
+    lastUpdated?: string;
 }
 
 export type TranscriptionSource = { type: 'file'; payload: File } | { type: 'url'; payload: string };

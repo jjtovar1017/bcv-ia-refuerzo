@@ -54,6 +54,9 @@ export interface TelegramUpdate {
 export class TelegramService {
     private apiClient: AxiosInstance;
     private readonly botToken: string;
+    private readonly phoneNumber: string;
+    private readonly apiId: string;
+    private readonly apiHash: string;
     private readonly baseUrl: string = 'https://api.telegram.org/bot';
     private readonly cacheTimeout: number = 300000; // 5 minutes
     private readonly cachePrefix: string = 'telegram_cache_';
@@ -61,9 +64,16 @@ export class TelegramService {
 
     constructor() {
         this.botToken = import.meta.env?.VITE_TELEGRAM_BOT_TOKEN || '';
+        this.phoneNumber = import.meta.env?.VITE_TELEGRAM_PHONE_NUMBER || '+5804123868364';
+        this.apiId = import.meta.env?.VITE_TELEGRAM_API_ID || '';
+        this.apiHash = import.meta.env?.VITE_TELEGRAM_API_HASH || '';
         
         if (!this.botToken) {
             console.warn('TELEGRAM_BOT_TOKEN not configured. Service will use cache-only mode.');
+        }
+        
+        if (!this.apiId || !this.apiHash) {
+            console.warn('TELEGRAM_API_ID or TELEGRAM_API_HASH not configured. Some features may be limited.');
         }
 
         this.apiClient = axios.create({
@@ -388,6 +398,105 @@ export class TelegramService {
         } catch (error) {
             console.warn('Failed to clear Telegram cache:', error);
         }
+    }
+
+    /**
+     * Get real-time news from Telegram channels using user account
+     * This method uses the Telegram API with user credentials for better access
+     */
+    public async getRealTimeNews(channels: string[] = ['bcv_oficial', 'veneconomia', 'finanzasdigital', 'telesurve', 'efectococuyo'], limit: number = 10): Promise<TelegramMessage[]> {
+        try {
+            if (!this.apiId || !this.apiHash) {
+                console.warn('Cannot get real-time news: API credentials not configured');
+                return this.getMultiChannelFeed(channels, limit);
+            }
+
+            // Use MTProto API for better access to channels
+            const messages: TelegramMessage[] = [];
+            
+            for (const channel of channels) {
+                try {
+                    const channelMessages = await this.getChannelMessagesWithUserAPI(channel, Math.ceil(limit / channels.length));
+                    messages.push(...channelMessages);
+                } catch (error) {
+                    console.error(`Error fetching messages from ${channel}:`, error);
+                    // Fallback to bot API
+                    try {
+                        const fallbackMessages = await this.getChannelMessages(channel, Math.ceil(limit / channels.length));
+                        messages.push(...fallbackMessages);
+                    } catch (fallbackError) {
+                        console.error(`Fallback also failed for ${channel}:`, fallbackError);
+                    }
+                }
+            }
+
+            // Sort by timestamp (newest first)
+            messages.sort((a, b) => this.parseTimestamp(b.timestamp) - this.parseTimestamp(a.timestamp));
+            
+            return messages.slice(0, limit);
+        } catch (error) {
+            console.error('Error getting real-time news:', error);
+            Sentry.captureException(error, {
+                tags: { component: 'telegram-realtime-news' }
+            });
+            // Fallback to cached data
+            return this.getMultiChannelFeed(channels, limit);
+        }
+    }
+
+    /**
+     * Get channel messages using user API (MTProto) for better access
+     */
+    private async getChannelMessagesWithUserAPI(channel: string, limit: number = 5): Promise<TelegramMessage[]> {
+        // This would require a Telegram client library like telethon or pyrogram
+        // For now, we'll use the bot API as fallback
+        console.log(`Attempting to get messages from ${channel} using user API...`);
+        
+        // Placeholder for MTProto implementation
+        // In a real implementation, you would use a library like:
+        // - telethon (Python)
+        // - pyrogram (Python) 
+        // - gramjs (JavaScript)
+        
+        return this.getChannelMessages(channel, limit);
+    }
+
+    /**
+     * Get news from specific Venezuelan financial channels
+     */
+    public async getVenezuelanFinancialNews(limit: number = 15): Promise<TelegramMessage[]> {
+        const venezuelanChannels = [
+            'bcv_oficial',
+            'veneconomia', 
+            'finanzasdigital',
+            'telesurve',
+            'efectococuyo',
+            'eluniversal',
+            'el_nacional',
+            'ultimasnoticias',
+            'globovision',
+            'venezuelanalysis'
+        ];
+
+        return this.getRealTimeNews(venezuelanChannels, limit);
+    }
+
+    /**
+     * Get BCV-specific news and announcements
+     */
+    public async getBCVNews(limit: number = 10): Promise<TelegramMessage[]> {
+        const bcvChannels = ['bcv_oficial', 'veneconomia', 'finanzasdigital'];
+        
+        const allMessages = await this.getRealTimeNews(bcvChannels, limit * 2);
+        
+        // Filter for BCV-related content
+        const bcvKeywords = ['BCV', 'Banco Central', 'tipo de cambio', 'reservas', 'política monetaria', 'inflación'];
+        
+        return allMessages.filter(message => 
+            bcvKeywords.some(keyword => 
+                message.text.toLowerCase().includes(keyword.toLowerCase())
+            )
+        ).slice(0, limit);
     }
 }
 

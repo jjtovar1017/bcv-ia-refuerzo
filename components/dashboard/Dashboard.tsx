@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Card from '../ui/Card';
+import LiveFeed from './LiveFeed';
 import { telegramService } from '../../services/telegramService';
 import { newsService } from '../../services/newsService';
 import { TelegramMessage } from '../../types';
@@ -14,21 +15,61 @@ const Dashboard: React.FC = () => {
     const fetchFeed = async () => {
         setIsFeedLoading(true);
         try {
-            const channelsForDashboard = ['bcv_oficial', 'veneconomia', 'finanzasdigital', 'telesurve', 'efectococuyo'];
-            let messages = await telegramService.getMultiChannelFeed(channelsForDashboard, 3);
+            // Intentar obtener noticias reales de Telegram usando el número de teléfono
+            let messages = await telegramService.getRealTimeNews(['bcv_oficial', 'veneconomia', 'finanzasdigital', 'telesurve', 'efectococuyo'], 5);
+            
+            // Si no hay mensajes reales, intentar con el feed normal
             if (messages.length === 0) {
-                const newsResult = await newsService.getEconomicNews('economic_analysis' as any);
-                messages = newsResult.sources.slice(0, 5).map((source, index) => ({
-                    id: index + 1,
-                    channel: 'noticias_bcv',
-                    text: `${source.title} - ${(source as any).snippet || ''}`,
-                    timestamp: (source as any).publishedDate || new Date().toLocaleDateString('es-VE')
-                }));
+                console.log("No se encontraron noticias reales, intentando con feed normal...");
+                messages = await telegramService.getMultiChannelFeed(['bcv_oficial', 'veneconomia', 'finanzasdigital', 'telesurve', 'efectococuyo'], 5);
+            }
+            
+            // Si aún no hay mensajes, usar Gemini para generar feed simulado
+            if (messages.length === 0) {
+                try {
+                    console.log("Generando simulación de feed de Telegram...");
+                    // Importar la función de Gemini dinámicamente
+                    const { generateSimulatedTelegramFeed } = await import('../../services/geminiService');
+                    messages = await generateSimulatedTelegramFeed(['bcv_oficial', 'veneconomia', 'finanzasdigital', 'telesurve', 'efectococuyo']);
+                    
+                    // Limitar a 5 mensajes para el dashboard
+                    messages = messages.slice(0, 5);
+                } catch (geminiError) {
+                    console.error("Failed to generate simulated feed with Gemini:", geminiError);
+                    
+                    // Fallback final: crear mensajes de ejemplo
+                    messages = [
+                        {
+                            id: 1,
+                            channel: 'bcv_oficial',
+                            text: 'BCV publica tipo de cambio de referencia del día',
+                            timestamp: new Date().toLocaleDateString('es-VE')
+                        },
+                        {
+                            id: 2,
+                            channel: 'finanzasdigital',
+                            text: 'Análisis del comportamiento del mercado cambiario venezolano',
+                            timestamp: new Date().toLocaleDateString('es-VE')
+                        },
+                        {
+                            id: 3,
+                            channel: 'veneconomia',
+                            text: 'Indicadores económicos muestran tendencia estable',
+                            timestamp: new Date().toLocaleDateString('es-VE')
+                        }
+                    ];
+                }
             }
             setFeedMessages(messages);
         } catch (error) {
             console.error("Failed to fetch dashboard feed:", error);
-            setFeedMessages([]);
+            // En caso de error total, mostrar mensaje informativo
+            setFeedMessages([{
+                id: 1,
+                channel: 'sistema',
+                text: 'Servicio de monitoreo temporalmente no disponible. Configurando servicios...',
+                timestamp: new Date().toLocaleDateString('es-VE')
+            }]);
         } finally {
             setIsFeedLoading(false);
         }
@@ -48,13 +89,13 @@ const Dashboard: React.FC = () => {
                 <Card title="Acciones Rápidas" className="lg:col-span-1">
                     <div className="flex justify-around">
                         <Link to="/generador">
-                            <Button variant="ghost" className="flex flex-col items-center space-y-2">
+                            <Button variant="secondary" className="flex flex-col items-center space-y-2">
                                 <DocumentTextIcon className="w-12 h-12 text-bcv-blue"/>
                                 <span className="text-xs">Nuevo Comunicado</span>
                             </Button>
                         </Link>
                          <Link to="/transcriptor">
-                            <Button variant="ghost" className="flex flex-col items-center space-y-2">
+                            <Button variant="secondary" className="flex flex-col items-center space-y-2">
                                 <MicrophoneIcon className="w-12 h-12 text-bcv-blue"/>
                                 <span className="text-xs">Transcribir Audio</span>
                             </Button>

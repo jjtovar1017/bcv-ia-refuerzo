@@ -1,16 +1,1 @@
-{
-  "projectId": "prj_tHPLMOJNLTb4qZ9o45iBGnHYT4fA",
-  "orgId": "team_pNi7bZbA1ZJxriboIu9AWaLK",
-  "projectName": "asistente-de-medios-bcv",
-  "settings": {
-    "createdAt": 1754187722457,
-    "framework": "vite",
-    "devCommand": null,
-    "installCommand": null,
-    "buildCommand": null,
-    "outputDirectory": null,
-    "rootDirectory": null,
-    "directoryListing": false,
-    "nodeVersion": "22.x"
-  }
-}
+{"projectId":"prj_WWlxgusaSKl3ZVAvLRehpD8DwY51","orgId":"team_pNi7bZbA1ZJxriboIu9AWaLK","projectName":"asistente-de-medios-bcv"}

@@ -40,8 +40,9 @@ export class NewsService {
     constructor() {
         this.newsApiKey = import.meta.env?.VITE_NEWS_API_KEY || '';
         
-        if (!this.newsApiKey) {
-            console.warn('NEWS_API_KEY not configured. Service will use cache-only mode.');
+        if (!this.newsApiKey || this.newsApiKey === 'demo_key_for_testing') {
+            console.warn('NEWS_API_KEY not configured or using demo key. Service will use fallback mode.');
+            this.newsApiKey = ''; // Reset demo key to empty to avoid API calls
         }
 
         // NewsAPI client
