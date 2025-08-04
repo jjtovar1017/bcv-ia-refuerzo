@@ -3,8 +3,10 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Card from '../ui/Card';
 import { TelegramMessage, EconomicNewsResult, NewsSearchType } from '../../types';
 import Button from '../ui/Button';
-import { TrashIcon, NewspaperIcon, DocumentDuplicateIcon, ShieldExclamationIcon } from '../icons/Icons';
+import { TrashIcon, NewspaperIcon, DocumentDuplicateIcon, ShieldExclamationIcon, ShieldCheckIcon } from '../icons/Icons';
 import { fetchEconomicNews, generateSimulatedTelegramFeed } from '../../services/geminiService';
+import { geopoliticalAnalysisService, GeopoliticalAnalysisResult } from '../../services/geopoliticalAnalysisService';
+import { institutionalAnalysisService, InstitutionalAnalysisResult } from '../../services/institutionalAnalysisService';
 import Spinner from '../ui/Spinner';
 
 const TelegramMonitor: React.FC = () => {
@@ -33,6 +35,12 @@ const TelegramMonitor: React.FC = () => {
     const [newsResult, setNewsResult] = useState<EconomicNewsResult | null>(null);
     const [newsError, setNewsError] = useState('');
     const [copySuccess, setCopySuccess] = useState('');
+    const [geopoliticalResult, setGeopoliticalResult] = useState<GeopoliticalAnalysisResult | null>(null);
+    const [isGeopoliticalLoading, setIsGeopoliticalLoading] = useState(false);
+    const [geopoliticalError, setGeopoliticalError] = useState('');
+    const [institutionalResult, setInstitutionalResult] = useState<InstitutionalAnalysisResult | null>(null);
+    const [isInstitutionalLoading, setIsInstitutionalLoading] = useState(false);
+    const [institutionalError, setInstitutionalError] = useState('');
     const [currentSearchType, setCurrentSearchType] = useState<NewsSearchType | null>(null);
 
     const fetchFeed = useCallback(async () => {
@@ -117,6 +125,28 @@ const TelegramMonitor: React.FC = () => {
         setCopySuccess('¡Copiado!');
         setTimeout(() => setCopySuccess(''), 2000);
     };
+
+    const handleInstitutionalRiskAnalysis = async () => {
+        setIsInstitutionalLoading(true);
+        setInstitutionalError('');
+        setInstitutionalResult(null);
+        setCopySuccess('');
+
+        try {
+            // Obtener noticias recientes para análisis
+            const recentMessages = messages.slice(0, 10).map(msg => 
+                `${msg.channel}: ${msg.text}`
+            );
+            
+            const result = await institutionalAnalysisService.generateReputationalRiskAnalysis(recentMessages);
+            setInstitutionalResult(result);
+        } catch (error) {
+            console.error('Error in institutional analysis:', error);
+            setInstitutionalError('Error al realizar el análisis institucional. Por favor, inténtelo de nuevo.');
+        } finally {
+            setIsInstitutionalLoading(false);
+        }
+    };
     
     const renderNewsView = () => {
         const newsTitle = 
@@ -184,7 +214,7 @@ const TelegramMonitor: React.FC = () => {
         <Card>
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-semibold text-bcv-dark">
-                    Feed Simulado ({filteredMessages.length} de {messages.length} mensajes)
+                    Feed de Monitoreo ({filteredMessages.length} de {messages.length} mensajes)
                 </h3>
                 <Button variant="secondary" onClick={fetchFeed} isLoading={isFeedLoading}>
                     Refrescar Feed
@@ -254,14 +284,14 @@ const TelegramMonitor: React.FC = () => {
                             Noticias Relevantes (Mixto)
                         </Button>
                         <Button
-                            onClick={() => handleFetchNews('threat_alert')}
-                            isLoading={isFetchingNews && currentSearchType === 'threat_alert'}
-                            disabled={isFetchingNews}
+                            onClick={handleInstitutionalRiskAnalysis}
+                            isLoading={isInstitutionalLoading}
+                            disabled={isFetchingNews || isInstitutionalLoading}
                             variant="secondary"
-                            className="w-full justify-center bg-red-100 text-red-800 hover:bg-red-200 focus:ring-red-500 border border-red-200"
+                            className="w-full justify-center bg-bcv-blue-100 text-bcv-blue-800 hover:bg-bcv-blue-200 focus:ring-bcv-blue-500 border border-bcv-blue-200"
                         >
-                            <ShieldExclamationIcon className="w-5 h-5 mr-2" />
-                            Análisis de Riesgos
+                            <ShieldCheckIcon className="w-5 h-5 mr-2" />
+                            Análisis Institucional BCV
                         </Button>
                     </div>
                 </Card>
@@ -339,7 +369,126 @@ const TelegramMonitor: React.FC = () => {
             </div>
 
             <div className="lg:col-span-3">
-                {isFetchingNews || newsResult || newsError ? renderNewsView() : renderMonitorView()}
+                {isInstitutionalLoading || institutionalResult || institutionalError ? (
+                    <div className="space-y-4">
+                        <div className="bg-gradient-to-r from-bcv-blue-50 to-bcv-gold-50 border border-bcv-blue-200 rounded-lg p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl font-semibold text-bcv-blue-800 flex items-center">
+                                    <ShieldCheckIcon className="w-6 h-6 mr-2" />
+                                    Análisis Institucional BCV
+                                </h2>
+                                <Button
+                                    onClick={() => {
+                                        setInstitutionalResult(null);
+                                        setInstitutionalError('');
+                                    }}
+                                    variant="secondary"
+                                >
+                                    ← Volver al Monitoreo
+                                </Button>
+                            </div>
+
+                            {isInstitutionalLoading && (
+                                <div className="flex items-center justify-center py-12">
+                                    <Spinner size={12} />
+                                    <span className="ml-3 text-bcv-gray-600">Generando análisis institucional...</span>
+                                </div>
+                            )}
+
+                            {institutionalError && (
+                                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                                    <p className="text-red-800">{institutionalError}</p>
+                                </div>
+                            )}
+
+                            {institutionalResult && !isInstitutionalLoading && (
+                                <div className="space-y-6">
+                                    <div className="bg-white border border-bcv-blue-200 rounded-lg p-6">
+                                        <div className="flex items-center mb-4">
+                                            <ShieldCheckIcon className="w-8 h-8 text-bcv-blue-600 mr-3" />
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-bcv-blue-800">Análisis Institucional BCV</h3>
+                                                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-1 ${
+                                                    institutionalResult.overallRisk === 'critico' ? 'bg-red-100 text-red-800' :
+                                                    institutionalResult.overallRisk === 'alto' ? 'bg-orange-100 text-orange-800' :
+                                                    institutionalResult.overallRisk === 'medio' ? 'bg-yellow-100 text-yellow-800' :
+                                                    'bg-green-100 text-green-800'
+                                                }`}>
+                                                    Riesgo {institutionalResult.overallRisk.charAt(0).toUpperCase() + institutionalResult.overallRisk.slice(1)}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="prose prose-sm max-w-none text-bcv-gray-700">
+                                            <div dangerouslySetInnerHTML={{ __html: institutionalResult.summary.replace(/\n/g, '<br/>') }} />
+                                        </div>
+                                    </div>
+
+                                    {institutionalResult.alerts.length > 0 && (
+                                        <div className="bg-white border border-bcv-gray-200 rounded-lg p-6">
+                                            <h4 className="text-lg font-semibold text-bcv-blue-800 mb-4">Alertas Identificadas</h4>
+                                            <div className="space-y-4">
+                                                {institutionalResult.alerts.map((alert, index) => (
+                                                    <div key={alert.id} className="border-l-4 border-bcv-blue-400 pl-4 py-2">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <h5 className="font-medium text-bcv-gray-900">{alert.title}</h5>
+                                                            <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                                                alert.severity === 'critica' ? 'bg-red-100 text-red-800' :
+                                                                alert.severity === 'alta' ? 'bg-orange-100 text-orange-800' :
+                                                                alert.severity === 'media' ? 'bg-yellow-100 text-yellow-800' :
+                                                                'bg-green-100 text-green-800'
+                                                            }`}>
+                                                                {alert.severity.charAt(0).toUpperCase() + alert.severity.slice(1)}
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-sm text-bcv-gray-600 mb-2">{alert.summary}</p>
+                                                        <div className="text-sm text-bcv-gray-700">
+                                                            <div dangerouslySetInnerHTML={{ __html: alert.analysis.replace(/\n/g, '<br/>') }} />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {institutionalResult.keyRecommendations.length > 0 && (
+                                        <div className="bg-white border border-bcv-gray-200 rounded-lg p-6">
+                                            <h4 className="text-lg font-semibold text-bcv-blue-800 mb-4">Recomendaciones Clave</h4>
+                                            <ul className="list-disc list-inside space-y-2 text-bcv-gray-700">
+                                                {institutionalResult.keyRecommendations.map((rec, index) => (
+                                                    <li key={index} className="text-sm">{rec}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+
+                                    <div className="flex justify-end space-x-3">
+                                        <Button
+                                            onClick={() => {
+                                                const alertsText = institutionalResult.alerts.map(alert => 
+                                                    `${alert.title}: ${alert.summary}\n${alert.analysis}`
+                                                ).join('\n\n');
+                                                const content = `${institutionalResult.summary}\n\n${alertsText}\n\nRecomendaciones:\n${institutionalResult.keyRecommendations.join('\n')}`;
+                                                navigator.clipboard.writeText(content);
+                                                setCopySuccess('¡Análisis copiado!');
+                                                setTimeout(() => setCopySuccess(''), 2000);
+                                            }}
+                                            variant="secondary"
+                                            className="flex items-center"
+                                        >
+                                            <DocumentDuplicateIcon className="w-4 h-4 mr-2" />
+                                            Copiar Análisis
+                                        </Button>
+                                        {copySuccess && (
+                                            <span className="text-green-600 text-sm flex items-center">
+                                                {copySuccess}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                ) : isFetchingNews || newsResult || newsError ? renderNewsView() : renderMonitorView()}
             </div>
         </div>
     );

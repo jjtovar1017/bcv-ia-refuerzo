@@ -17,7 +17,7 @@ const LiveFeed: React.FC<LiveFeedProps> = ({ messages, isLoading }) => {
             <div className="flex justify-between items-center mb-4">
                  <h3 className="text-lg font-semibold text-bcv-dark flex items-center">
                     <BellIcon className="w-6 h-6 mr-2 text-bcv-blue"/>
-                    Feed de Monitoreo en Vivo
+                    Feed de Monitoreo
                 </h3>
                 <Link to="/monitoreo" className="text-sm font-medium text-bcv-blue hover:underline">
                     Ver todo
@@ -27,7 +27,7 @@ const LiveFeed: React.FC<LiveFeedProps> = ({ messages, isLoading }) => {
             {isLoading ? (
                 <div className="flex flex-col items-center justify-center h-48">
                     <Spinner size={8} />
-                    <p className="mt-4 text-bcv-gray-600">Cargando feed...</p>
+                    <p className="mt-4 text-bcv-gray-600">Generando feed simulado...</p>
                 </div>
             ) : messages.length === 0 ? (
                 <div className="text-center py-10 text-bcv-gray-500">

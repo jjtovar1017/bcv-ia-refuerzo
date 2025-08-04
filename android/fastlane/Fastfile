@@ -1,0 +1,217 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+platform :android do
+  desc "Build signed APK for BCV Asset Tracking"
+  lane :build_apk do |options|
+    # Get version from parameters or generate default
+    version_name = options[:version_name] || "1.0.0-#{Time.now.strftime('%Y%m%d%H%M')}"
+    version_code = options[:version_code] || Time.now.strftime('%Y%m%d%H').to_i
+    
+    # Update version in build.gradle
+    android_set_version_name(
+      version_name: version_name,
+      gradle_file: "app/build.gradle"
+    )
+    
+    android_set_version_code(
+      version_code: version_code,
+      gradle_file: "app/build.gradle"
+    )
+    
+    # Clean previous builds
+    gradle(task: "clean")
+    
+    # Build signed APK
+    gradle(
+      task: "assemble",
+      build_type: "Release",
+      properties: {
+        "android.injected.signing.store.file" => "keystore.jks",
+        "android.injected.signing.store.password" => ENV["KEYSTORE_PASSWORD"],
+        "android.injected.signing.key.alias" => ENV["KEY_ALIAS"],
+        "android.injected.signing.key.password" => ENV["KEY_PASSWORD"],
+      }
+    )
+    
+    # Rename APK with version
+    sh("mv ../app/build/outputs/apk/release/app-release.apk ../app/build/outputs/apk/release/bcv-asset-tracking-#{version_name}.apk")
+    
+    UI.success("✅ APK built successfully: bcv-asset-tracking-#{version_name}.apk")
+    UI.message("📍 Location: app/build/outputs/apk/release/")
+    UI.message("🔢 Version: #{version_name} (#{version_code})")
+  end
+
+  desc "Build and deploy to Firebase App Distribution"
+  lane :deploy_firebase do |options|
+    # Build APK first
+    build_apk(options)
+    
+    version_name = options[:version_name] || "1.0.0-#{Time.now.strftime('%Y%m%d%H%M')}"
+    
+    # Upload to Firebase App Distribution
+    firebase_app_distribution(
+      app: ENV["FIREBASE_APP_ID"],
+      firebase_cli_token: ENV["FIREBASE_CLI_TOKEN"],
+      apk_path: "app/build/outputs/apk/release/bcv-asset-tracking-#{version_name}.apk",
+      groups: "bcv-testers",
+      release_notes: "🚀 BCV Asset Tracking v#{version_name}\n\n✅ GPS-based asset tracking\n✅ DeepSeek AI integration\n✅ Battery-optimized location updates\n✅ Real-time WebSocket communication",
+      debug: false
+    )
+    
+    UI.success("🚀 APK deployed to Firebase App Distribution!")
+  end
+
+  desc "Build AAB for Google Play Store"
+  lane :build_aab do |options|
+    version_name = options[:version_name] || "1.0.0"
+    version_code = options[:version_code] || 1
+    
+    # Update version
+    android_set_version_name(
+      version_name: version_name,
+      gradle_file: "app/build.gradle"
+    )
+    
+    android_set_version_code(
+      version_code: version_code,
+      gradle_file: "app/build.gradle"
+    )
+    
+    # Clean and build AAB
+    gradle(task: "clean")
+    gradle(
+      task: "bundle",
+      build_type: "Release",
+      properties: {
+        "android.injected.signing.store.file" => "keystore.jks",
+        "android.injected.signing.store.password" => ENV["KEYSTORE_PASSWORD"],
+        "android.injected.signing.key.alias" => ENV["KEY_ALIAS"],
+        "android.injected.signing.key.password" => ENV["KEY_PASSWORD"],
+      }
+    )
+    
+    UI.success("✅ AAB built successfully!")
+    UI.message("📍 Location: app/build/outputs/bundle/release/")
+  end
+
+  desc "Deploy to Google Play Store (Internal Testing)"
+  lane :deploy_play_store do |options|
+    # Build AAB
+    build_aab(options)
+    
+    version_name = options[:version_name] || "1.0.0"
+    
+    # Upload to Google Play Console
+    upload_to_play_store(
+      track: 'internal',
+      aab: 'app/build/outputs/bundle/release/app-release.aab',
+      json_key: ENV["GOOGLE_PLAY_JSON_KEY_PATH"],
+      package_name: "com.bcv.app",
+      release_status: 'draft',
+      version_name: version_name,
+      changelogs_path: "./metadata/android/",
+      skip_upload_metadata: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: false
+    )
+    
+    UI.success("🚀 AAB uploaded to Google Play Store (Internal Testing)!")
+  end
+
+  desc "Run tests and generate reports"
+  lane :test do
+    # Run unit tests
+    gradle(task: "test")
+    
+    # Run instrumented tests (if available)
+    # gradle(task: "connectedAndroidTest")
+    
+    UI.success("✅ All tests passed!")
+  end
+
+  desc "Generate signed APK with metadata"
+  lane :release do |options|
+    # Ensure we have all required environment variables
+    ensure_env_vars(
+      env_vars: ['KEYSTORE_PASSWORD', 'KEY_ALIAS', 'KEY_PASSWORD']
+    )
+    
+    version_name = options[:version_name] || "1.0.0"
+    
+    # Run tests first
+    test
+    
+    # Build signed APK
+    build_apk(
+      version_name: version_name,
+      version_code: options[:version_code]
+    )
+    
+    # Generate changelog
+    changelog = changelog_from_git_commits(
+      between: [git_previous_tag, "HEAD"],
+      pretty: "- %s",
+      date_format: "short",
+      match_lightweight_tag: false,
+      merge_commit_filtering: "exclude_merges"
+    )
+    
+    # Create GitHub release (if running in CI)
+    if ENV["GITHUB_TOKEN"]
+      github_release = set_github_release(
+        repository_name: "bcv/asistente-de-medios-bcv",
+        api_token: ENV["GITHUB_TOKEN"],
+        name: "BCV Asset Tracking v#{version_name}",
+        tag_name: "v#{version_name}",
+        description: "🚀 BCV Asset Tracking v#{version_name}\n\n#{changelog}",
+        commitish: "main",
+        upload_assets: ["app/build/outputs/apk/release/bcv-asset-tracking-#{version_name}.apk"]
+      )
+      
+      UI.success("📦 GitHub release created: #{github_release['html_url']}")
+    end
+    
+    UI.success("🎉 Release v#{version_name} completed successfully!")
+  end
+
+  # Helper lane to ensure environment variables are set
+  private_lane :ensure_env_vars do |options|
+    options[:env_vars].each do |var|
+      UI.user_error!("❌ Environment variable #{var} is not set") unless ENV[var]
+    end
+  end
+
+  # Error handling
+  error do |lane, exception|
+    UI.error("❌ Error in lane #{lane}: #{exception.message}")
+    
+    # Send notification on error (if configured)
+    if ENV["SLACK_WEBHOOK_URL"]
+      slack(
+        message: "❌ BCV Asset Tracking build failed in lane: #{lane}",
+        success: false,
+        slack_url: ENV["SLACK_WEBHOOK_URL"],
+        channel: "#bcv-deployments",
+        payload: {
+          "Error" => exception.message,
+          "Lane" => lane.to_s
+        }
+      )
+    end
+  end
+end

@@ -1,0 +1,13 @@
+# Fastlane Appfile for BCV Asset Tracking Android App
+
+# Package name of the Android app
+package_name("com.bcv.app")
+
+# JSON key file path for Google Play Console API
+json_key_file(ENV["GOOGLE_PLAY_JSON_KEY_PATH"]) if ENV["GOOGLE_PLAY_JSON_KEY_PATH"]
+
+# Firebase App ID for Firebase App Distribution
+firebase_app_id(ENV["FIREBASE_APP_ID"]) if ENV["FIREBASE_APP_ID"]
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile

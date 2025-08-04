@@ -1,0 +1,157 @@
+{
+  "name": "BCV Asset Tracking",
+  "short_name": "BCV Tracking",
+  "description": "Sistema de rastreo de assets del Banco Central de Venezuela con GPS en tiempo real y análisis de rutas con DeepSeek AI",
+  "version": "1.0.0",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#1E40AF",
+  "background_color": "#F8FAFC",
+  "scope": "/",
+  "lang": "es-VE",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/assets/icon/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icon/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icon/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icon/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icon/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icon/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icon/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icon/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "Ver dashboard principal",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/assets/icon/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Rastreo de Assets",
+      "short_name": "Tracking",
+      "description": "Monitorear assets en tiempo real",
+      "url": "/tracking",
+      "icons": [
+        {
+          "src": "/assets/icon/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Generar Contenido",
+      "short_name": "Contenido",
+      "description": "Generar contenido con DeepSeek AI",
+      "url": "/generador",
+      "icons": [
+        {
+          "src": "/assets/icon/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/assets/screenshots/dashboard-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard principal con métricas en tiempo real"
+    },
+    {
+      "src": "/assets/screenshots/tracking-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Mapa de rastreo de assets con geocercas"
+    },
+    {
+      "src": "/assets/screenshots/mobile-dashboard.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Dashboard móvil optimizado"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.bcv.app",
+      "id": "com.bcv.app"
+    }
+  ],
+  "prefer_related_applications": false,
+  "features": [
+    "geolocation",
+    "background-sync",
+    "push-notifications",
+    "offline-support"
+  ],
+  "permissions": [
+    "geolocation",
+    "notifications",
+    "background-sync"
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+bcvtracking",
+      "url": "/tracking?asset=%s"
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
+}

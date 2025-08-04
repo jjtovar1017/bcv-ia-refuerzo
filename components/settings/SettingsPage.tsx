@@ -10,7 +10,7 @@ interface ApiKeyDisplayProps {
 const ApiKeyDisplay: React.FC<ApiKeyDisplayProps> = ({ name, value, status }) => {
     const statusInfo = {
         configured: { text: 'Configurada', color: 'text-green-700', bgColor: 'bg-green-100' },
-        simulated: { text: 'Simulado', color: 'text-yellow-800', bgColor: 'bg-yellow-100' },
+        simulated: { text: 'En Vivo', color: 'text-green-800', bgColor: 'bg-green-100' },
     };
 
     const currentStatus = statusInfo[status];

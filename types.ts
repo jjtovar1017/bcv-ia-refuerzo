@@ -1,4 +1,3 @@
-
 export interface Metric {
     title: string;
     value: string | number;
@@ -24,6 +23,9 @@ export interface TelegramMessage {
     channel: string;
     text: string;
     timestamp: string;
+    messageId?: number; // ID del mensaje específico en Telegram
+    channelUsername?: string; // Username del canal para construir el enlace
+    telegramUrl?: string; // URL directa al mensaje en Telegram
 }
 
 export interface NavigationItem {
@@ -45,3 +47,94 @@ export interface EconomicNewsResult {
 export type TranscriptionSource = { type: 'file'; payload: File } | { type: 'url'; payload: string };
 
 export type NewsSearchType = 'economic' | 'mixed' | 'threat_alert';
+
+export interface Notification {
+    id: string;
+    title: string;
+    body: string;
+    timestamp: number;
+    read: boolean;
+    priority: 'low' | 'medium' | 'high';
+    actions?: {
+        action: string;
+        title: string;
+    }[];
+    data?: any;
+}
+
+// DeepSeek Integration Types
+export interface RouteRequest {
+    coordinates: [number, number]; // [lat, lng]
+    destination: [number, number]; // [lat, lng]
+    assetType: 'vehicle' | 'personnel' | 'equipment';
+    preferences?: {
+        avoidTolls?: boolean;
+        avoidHighways?: boolean;
+        optimizeFor?: 'time' | 'distance' | 'fuel';
+    };
+}
+
+export interface RouteResponse {
+    recommendedRoute: Array<[number, number]>; // waypoints
+    estimatedTime: number; // minutes
+    estimatedDistance: number; // kilometers
+    riskAssessment: 'low' | 'medium' | 'high';
+    alternativeRoutes: Array<{
+        waypoints: Array<[number, number]>;
+        estimatedTime: number;
+        estimatedDistance: number;
+        description: string;
+    }>;
+    warnings?: string[];
+}
+
+export interface GeoAnalysisRequest {
+    location: [number, number]; // [lat, lng]
+    radius: number; // meters
+    analysisType: 'risk' | 'efficiency' | 'compliance';
+}
+
+export interface GeoAnalysisResponse {
+    location: [number, number];
+    riskScore: number; // 0-100
+    securityLevel: 'low' | 'medium' | 'high' | 'critical';
+    economicIndicators: {
+        activityLevel: number; // 0-100
+        infrastructureQuality: number; // 0-100
+        accessibilityScore: number; // 0-100
+    };
+    recommendations: string[];
+    nearbyFacilities: Array<{
+        type: 'bcv_branch' | 'bank' | 'government' | 'security';
+        name: string;
+        distance: number; // meters
+        coordinates: [number, number];
+    }>;
+    complianceFactors: {
+        regulatoryZone: string;
+        restrictions: string[];
+        requiredPermissions: string[];
+    };
+}
+
+// WebSocket Message Types
+export interface WebSocketMessage {
+    type: 'location_update' | 'notification' | 'asset_status' | 'route_update';
+    payload: any;
+    timestamp: Date;
+}
+
+// Kalman Filter Types
+export interface KalmanFilterState {
+    latitude: number;
+    longitude: number;
+    latitudeVelocity: number;
+    longitudeVelocity: number;
+    accuracy: number;
+}
+
+export interface KalmanFilterConfig {
+    processNoise: number; // Q
+    measurementNoise: number; // R
+    estimationError: number; // P
+}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { AIModel, NavigationItem, AIModelOption } from './types';
-import { HomeIcon, DocumentTextIcon, MicrophoneIcon, BellIcon, Cog6ToothIcon } from './components/icons/Icons';
+import { HomeIcon, DocumentTextIcon, MicrophoneIcon, BellIcon, Cog6ToothIcon, MapIcon } from './components/icons/Icons';
 
 export const NAVIGATION_ITEMS: NavigationItem[] = [
     { name: 'Dashboard', path: '/dashboard', icon: (className) => React.createElement(HomeIcon, { className }) },
@@ -11,9 +11,9 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
 ];
 
 export const AI_MODELS: AIModelOption[] = [
-    { id: AIModel.DeepSeek, name: 'DeepSeek (Precisión)', description: 'Modelo avanzado para análisis y generación de contenido detallado.' },
-    { id: AIModel.Mistral, name: 'Mistral (Rapidez)', description: 'Ideal para tareas rápidas, resúmenes y borradores.' },
-    { id: AIModel.Gemini, name: 'Gemini (Respaldo)', description: 'Modelo de Google versátil y gratuito para diversas tareas.' },
+    { id: AIModel.DeepSeek, name: 'DeepSeek-R1 (Principal)', description: 'Modelo principal de IA para análisis avanzado, procesamiento de rutas y generación de informes.' },
+    { id: AIModel.Gemini, name: 'Gemini (Respaldo)', description: 'Modelo de respaldo para funciones básicas cuando DeepSeek no esté disponible.' },
+    { id: AIModel.Mistral, name: 'Mistral (En desarrollo)', description: 'Modelo en desarrollo para futuras integraciones.' },
 ];
 
 export const CONTENT_TYPES: string[] = [

@@ -1,0 +1,100 @@
+{
+  "version": 2,
+  "name": "bcv-asset-tracking",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "env": {
+    "REACT_APP_DEEPSEEK_API_KEY": "@deepseek-api-key",
+    "REACT_APP_REDIS_URL": "@redis-url",
+    "REACT_APP_WS_URL": "@websocket-url",
+    "REACT_APP_SENTRY_DSN": "@sentry-dsn",
+    "REACT_APP_SUPABASE_URL": "@supabase-url",
+    "REACT_APP_SUPABASE_ANON_KEY": "@supabase-anon-key"
+  },
+  "build": {
+    "env": {
+      "REACT_APP_DEEPSEEK_API_KEY": "@deepseek-api-key",
+      "REACT_APP_REDIS_URL": "@redis-url",
+      "REACT_APP_WS_URL": "@websocket-url",
+      "REACT_APP_SENTRY_DSN": "@sentry-dsn",
+      "REACT_APP_SUPABASE_URL": "@supabase-url",
+      "REACT_APP_SUPABASE_ANON_KEY": "@supabase-anon-key"
+    }
+  },
+  "functions": {
+    "app/api/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(self), camera=(), microphone=()"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/location",
+      "destination": "/api/location.js"
+    },
+    {
+      "source": "/api/assets",
+      "destination": "/api/assets.js"
+    },
+    {
+      "source": "/api/geofences",
+      "destination": "/api/geofences.js"
+    }
+  ]
+}
