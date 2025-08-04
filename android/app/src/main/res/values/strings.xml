@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">asistente-de-medios-bcv</string>
-    <string name="title_activity_main">asistente-de-medios-bcv</string>
-    <string name="package_name">com.bcv.app</string>
-    <string name="custom_url_scheme">com.bcv.app</string>
-</resources>

@@ -26,6 +26,7 @@ export interface TelegramMessage {
     messageId?: number; // ID del mensaje específico en Telegram
     channelUsername?: string; // Username del canal para construir el enlace
     telegramUrl?: string; // URL directa al mensaje en Telegram
+    url?: string; // URL de la fuente original (si aplica)
 }
 
 export interface NavigationItem {
@@ -141,4 +142,41 @@ export interface KalmanFilterConfig {
     processNoise: number; // Q
     measurementNoise: number; // R
     estimationError: number; // P
+}
+
+export interface GeoCoordinate {
+    latitude: number;
+    longitude: number;
+}
+
+export interface LocationData {
+    latitude: number;
+    longitude: number;
+    accuracy?: number;
+    timestamp: number;
+}
+
+export interface Asset {
+    id: string;
+    name: string;
+    type: string;
+    currentLocation?: LocationData;
+    status?: 'active' | 'inactive' | 'maintenance';
+}
+
+export interface LocationUpdate {
+    assetId: string;
+    latitude: number;
+    longitude: number;
+    timestamp: number;
+    accuracy?: number;
+}
+
+export interface GeofenceAlert {
+    id: string;
+    assetId: string;
+    geofenceId: string;
+    alertType: 'entry' | 'exit' | 'dwell';
+    timestamp: number;
+    location: GeoCoordinate;
 }

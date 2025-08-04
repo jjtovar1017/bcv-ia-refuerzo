@@ -6,7 +6,7 @@ import { telegramService } from '../../services/telegramService';
 import { newsService } from '../../services/newsService';
 import { TelegramMessage } from '../../types';
 import Button from '../ui/Button';
-import { DocumentTextIcon, MicrophoneIcon } from '../icons/Icons';
+import { DocumentTextIcon, MicrophoneIcon, ChartBarIcon } from '../icons/Icons';
 
 const Dashboard: React.FC = () => {
     const [feedMessages, setFeedMessages] = useState<TelegramMessage[]>([]);

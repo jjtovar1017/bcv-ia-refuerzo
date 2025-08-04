@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
+import Card from '../ui/Card';
+import Button from '../ui/Button';
 import { webAnalysisService, BCVInstitutionalAnalysis, WebAnalysisResult } from '../../services/webAnalysisService';
 // Iconos personalizados
 const TrendingUpIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -118,8 +118,8 @@ const InstitutionalAnalysis: React.FC = () => {
                     </div>
                 </div>
                 <Button
-                    variant="ghost"
-                    size="sm"
+
+                    
                     onClick={() => window.open(news.url, '_blank')}
                     className="text-bcv-blue hover:text-bcv-blue-dark"
                 >
@@ -218,7 +218,7 @@ const InstitutionalAnalysis: React.FC = () => {
             </Card>
 
             {/* Noticias Recientes */}
-            <Card title="Noticias Recientes sobre BCV" icon={<DocumentTextIcon className="w-5 h-5" />}>
+            <Card title="Noticias Recientes sobre BCV">
                 <div className="space-y-4">
                     {analysis.recentNews.map((news, index) => (
                         <NewsItem key={index} news={news} />

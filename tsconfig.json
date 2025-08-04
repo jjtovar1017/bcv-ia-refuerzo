@@ -22,5 +22,10 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "exclude": [
+    "public/pdf.worker.mjs",
+    "dist/pdf.worker.mjs",
+    "android/**/*.mjs"
+  ]
 }
