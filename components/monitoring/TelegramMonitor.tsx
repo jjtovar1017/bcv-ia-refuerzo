@@ -4,7 +4,7 @@ import Card from '../ui/Card';
 import { TelegramMessage, EconomicNewsResult, NewsSearchType } from '../../types';
 import Button from '../ui/Button';
 import { TrashIcon, NewspaperIcon, DocumentDuplicateIcon, ShieldExclamationIcon, ShieldCheckIcon } from '../icons/Icons';
-import { fetchEconomicNews, generateSimulatedTelegramFeed } from '../../services/geminiService';
+import { telegramService } from '../../services/telegramService';
 import { geopoliticalAnalysisService, GeopoliticalAnalysisResult } from '../../services/geopoliticalAnalysisService';
 import { institutionalAnalysisService, InstitutionalAnalysisResult } from '../../services/institutionalAnalysisService';
 import Spinner from '../ui/Spinner';
@@ -47,10 +47,10 @@ const TelegramMonitor: React.FC = () => {
         setIsFeedLoading(true);
         setFeedError('');
         try {
-            const generatedMessages = await generateSimulatedTelegramFeed(channels);
-            setMessages(generatedMessages);
+            const messages = await telegramService.getMultiChannelFeed(channels);
+            setMessages(messages);
         } catch (e: any) {
-            setFeedError(e.message || 'Ocurrió un error al generar el feed.');
+            setFeedError(e.message || 'Ocurrió un error al obtener el feed.');
         } finally {
             setIsFeedLoading(false);
         }
@@ -224,7 +224,7 @@ const TelegramMonitor: React.FC = () => {
                 {isFeedLoading && (
                      <div className="flex flex-col items-center justify-center h-96 text-bcv-gray-600">
                         <Spinner size={12} />
-                        <p className="mt-4">Generando simulación de feed de Telegram...</p>
+                        <p className="mt-4">Cargando feed de Telegram...</p>
                     </div>
                 )}
                 {feedError && !isFeedLoading && (

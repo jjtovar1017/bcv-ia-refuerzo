@@ -24,41 +24,16 @@ const Dashboard: React.FC = () => {
                 messages = await telegramService.getMultiChannelFeed(['bcv_oficial', 'veneconomia', 'finanzasdigital', 'telesurve', 'efectococuyo'], 5);
             }
             
-            // Si aún no hay mensajes, usar Gemini para generar feed simulado
+            // Si aún no hay mensajes, mostrar un mensaje informativo
             if (messages.length === 0) {
-                try {
-                    console.log("Generando simulación de feed de Telegram...");
-                    // Importar la función de Gemini dinámicamente
-                    const { generateSimulatedTelegramFeed } = await import('../../services/geminiService');
-                    messages = await generateSimulatedTelegramFeed(['bcv_oficial', 'veneconomia', 'finanzasdigital', 'telesurve', 'efectococuyo']);
-                    
-                    // Limitar a 5 mensajes para el dashboard
-                    messages = messages.slice(0, 5);
-                } catch (geminiError) {
-                    console.error("Failed to generate simulated feed with Gemini:", geminiError);
-                    
-                    // Fallback final: crear mensajes de ejemplo
-                    messages = [
-                        {
-                            id: 1,
-                            channel: 'bcv_oficial',
-                            text: 'BCV publica tipo de cambio de referencia del día',
-                            timestamp: new Date().toLocaleDateString('es-VE')
-                        },
-                        {
-                            id: 2,
-                            channel: 'finanzasdigital',
-                            text: 'Análisis del comportamiento del mercado cambiario venezolano',
-                            timestamp: new Date().toLocaleDateString('es-VE')
-                        },
-                        {
-                            id: 3,
-                            channel: 'veneconomia',
-                            text: 'Indicadores económicos muestran tendencia estable',
-                            timestamp: new Date().toLocaleDateString('es-VE')
-                        }
-                    ];
-                }
+                messages = [
+                    {
+                        id: 1,
+                        channel: 'sistema',
+                        text: 'No se encontraron mensajes en los canales monitoreados.',
+                        timestamp: new Date().toLocaleDateString('es-VE')
+                    }
+                ];
             }
             setFeedMessages(messages);
         } catch (error) {
@@ -87,17 +62,23 @@ const Dashboard: React.FC = () => {
         <div className="space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <Card title="Acciones Rápidas" className="lg:col-span-1">
-                    <div className="flex justify-around">
+                    <div className="grid grid-cols-2 gap-4">
                         <Link to="/generador">
-                            <Button variant="secondary" className="flex flex-col items-center space-y-2">
+                            <Button variant="secondary" className="flex flex-col items-center space-y-2 w-full">
                                 <DocumentTextIcon className="w-12 h-12 text-bcv-blue"/>
                                 <span className="text-xs">Nuevo Comunicado</span>
                             </Button>
                         </Link>
-                         <Link to="/transcriptor">
-                            <Button variant="secondary" className="flex flex-col items-center space-y-2">
+                        <Link to="/transcriptor">
+                            <Button variant="secondary" className="flex flex-col items-center space-y-2 w-full">
                                 <MicrophoneIcon className="w-12 h-12 text-bcv-blue"/>
                                 <span className="text-xs">Transcribir Audio</span>
+                            </Button>
+                        </Link>
+                        <Link to="/analisis" className="col-span-2">
+                            <Button variant="secondary" className="flex flex-col items-center space-y-2 w-full">
+                                <ChartBarIcon className="w-12 h-12 text-bcv-blue"/>
+                                <span className="text-xs">Análisis Institucional</span>
                             </Button>
                         </Link>
                     </div>

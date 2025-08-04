@@ -406,41 +406,50 @@ export class TelegramService {
      */
     public async getRealTimeNews(channels: string[] = ['bcv_oficial', 'veneconomia', 'finanzasdigital', 'telesurve', 'efectococuyo'], limit: number = 10): Promise<TelegramMessage[]> {
         try {
-            if (!this.apiId || !this.apiHash) {
-                console.warn('Cannot get real-time news: API credentials not configured');
-                return this.getMultiChannelFeed(channels, limit);
-            }
-
-            // Use MTProto API for better access to channels
-            const messages: TelegramMessage[] = [];
+            console.log('🔍 Obteniendo noticias reales de Telegram...');
             
-            for (const channel of channels) {
-                try {
-                    const channelMessages = await this.getChannelMessagesWithUserAPI(channel, Math.ceil(limit / channels.length));
-                    messages.push(...channelMessages);
-                } catch (error) {
-                    console.error(`Error fetching messages from ${channel}:`, error);
-                    // Fallback to bot API
+            // Intentar obtener mensajes usando la API de usuario (MTProto)
+            let messages: TelegramMessage[] = [];
+            
+            if (this.apiId && this.apiHash) {
+                for (const channel of channels) {
                     try {
-                        const fallbackMessages = await this.getChannelMessages(channel, Math.ceil(limit / channels.length));
-                        messages.push(...fallbackMessages);
-                    } catch (fallbackError) {
-                        console.error(`Fallback also failed for ${channel}:`, fallbackError);
+                        const channelMessages = await this.getChannelMessagesWithUserAPI(channel, Math.ceil(limit / channels.length));
+                        messages.push(...channelMessages);
+                    } catch (error) {
+                        console.error(`Error fetching messages from ${channel}:`, error);
+                        // Fallback to bot API
+                        try {
+                            const fallbackMessages = await this.getChannelMessages(channel, Math.ceil(limit / channels.length));
+                            messages.push(...fallbackMessages);
+                        } catch (fallbackError) {
+                            console.error(`Fallback also failed for ${channel}:`, fallbackError);
+                        }
                     }
                 }
+            } else {
+                console.warn('Cannot get real-time news: API credentials not configured');
+                messages = await this.getMultiChannelFeed(channels, limit);
+            }
+
+            // Si no hay mensajes, usar News API como respaldo
+            if (messages.length === 0) {
+                console.log('🔄 Usando News API como respaldo...');
+                messages = await this.getNewsAPIBackup(channels, limit);
             }
 
             // Sort by timestamp (newest first)
             messages.sort((a, b) => this.parseTimestamp(b.timestamp) - this.parseTimestamp(a.timestamp));
             
+            console.log(`✅ Obtenidas ${messages.length} noticias reales`);
             return messages.slice(0, limit);
         } catch (error) {
             console.error('Error getting real-time news:', error);
             Sentry.captureException(error, {
                 tags: { component: 'telegram-realtime-news' }
             });
-            // Fallback to cached data
-            return this.getMultiChannelFeed(channels, limit);
+            // Fallback to News API
+            return this.getNewsAPIBackup(channels, limit);
         }
     }
 
@@ -497,6 +506,63 @@ export class TelegramService {
                 message.text.toLowerCase().includes(keyword.toLowerCase())
             )
         ).slice(0, limit);
+    }
+
+    /**
+     * Obtiene noticias de respaldo usando News API cuando Telegram falla
+     */
+    private async getNewsAPIBackup(channels: string[], limit: number): Promise<TelegramMessage[]> {
+        try {
+            const newsApiKey = import.meta.env?.VITE_NEWS_API_KEY;
+            if (!newsApiKey) {
+                throw new Error('News API key no configurada');
+            }
+
+            const queries = [
+                'Banco Central Venezuela',
+                'BCV Venezuela',
+                'economía venezolana',
+                'tipo cambio Venezuela',
+                'inflación Venezuela'
+            ];
+
+            const allNews: TelegramMessage[] = [];
+
+            for (const query of queries) {
+                try {
+                    const response = await this.apiClient.get('https://newsapi.org/v2/everything', {
+                        params: {
+                            q: query,
+                            language: 'es',
+                            sortBy: 'publishedAt',
+                            pageSize: Math.ceil(limit / queries.length),
+                            apiKey: newsApiKey
+                        }
+                    });
+
+                    if (response.data.articles) {
+                        const articles = response.data.articles.map((article: any, index: number) => ({
+                            id: Date.now() + index,
+                            channel: 'news_api',
+                            text: article.title,
+                            timestamp: new Date(article.publishedAt).toLocaleDateString('es-VE'),
+                            url: article.url,
+                            source: article.source.name
+                        }));
+
+                        allNews.push(...articles);
+                    }
+                } catch (error) {
+                    console.error(`Error fetching news for query "${query}":`, error);
+                }
+            }
+
+            return allNews.slice(0, limit);
+
+        } catch (error) {
+            console.error('Error fetching News API backup:', error);
+            return [];
+        }
     }
 }
 

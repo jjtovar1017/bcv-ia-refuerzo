@@ -1,12 +1,13 @@
 import React from 'react';
 import { AIModel, NavigationItem, AIModelOption } from './types';
-import { HomeIcon, DocumentTextIcon, MicrophoneIcon, BellIcon, Cog6ToothIcon, MapIcon } from './components/icons/Icons';
+import { HomeIcon, DocumentTextIcon, MicrophoneIcon, BellIcon, Cog6ToothIcon, MapIcon, ChartBarIcon } from './components/icons/Icons';
 
 export const NAVIGATION_ITEMS: NavigationItem[] = [
     { name: 'Dashboard', path: '/dashboard', icon: (className) => React.createElement(HomeIcon, { className }) },
     { name: 'Generar Contenido', path: '/generador', icon: (className) => React.createElement(DocumentTextIcon, { className }) },
     { name: 'Transcripción', path: '/transcriptor', icon: (className) => React.createElement(MicrophoneIcon, { className }) },
     { name: 'Monitoreo Telegram', path: '/monitoreo', icon: (className) => React.createElement(BellIcon, { className }) },
+    { name: 'Análisis Institucional', path: '/analisis', icon: (className) => React.createElement(ChartBarIcon, { className }) },
     { name: 'Configuración', path: '/configuracion', icon: (className) => React.createElement(Cog6ToothIcon, { className }) },
 ];
 

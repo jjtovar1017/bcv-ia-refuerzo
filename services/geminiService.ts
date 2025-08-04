@@ -317,12 +317,16 @@ export const fetchEconomicNews = async (searchType: NewsSearchType): Promise<Eco
             break;
         case 'threat_alert':
             prompt = `
-                **Rol:** Eres un analista de inteligencia y riesgos comunicacionales para el Banco Central de Venezuela.
+                **Rol:** Eres un analista de inteligencia y riesgos comunicacionales para el Banco Central de Venezuela, alineado con la visión del Gobierno Nacional de Venezuela.
                 **Tarea:** Realiza una búsqueda proactiva para identificar matrices de opinión negativas, campañas de desinformación, o noticias críticas que puedan afectar la reputación e integridad del BCV, de las instituciones del Estado venezolano, o del patrimonio nacional.
                 **Foco:** Busca activamente narrativas adversas, críticas a la política económica, rumores financieros, o ataques a la imagen institucional en medios y redes. Presta especial atención a los medios independientes, críticos e internacionales.
                 **Fuentes:** Utiliza la siguiente lista como base para tu investigación.
                 ${newsSources}
-                **Resultado:** Genera un informe de alerta. Resume los hallazgos críticos, explica por qué representan una amenaza potencial y quiénes son los actores principales detrás de estas narrativas. Sé directo y analítico.
+                **Resultado:** Genera un informe de alerta estructurado de la siguiente manera:
+
+                1.  **Amenaza Identificada:** Describe de forma concisa la matriz de opinión negativa, la campaña de desinformación o la noticia crítica detectada.
+                2.  **Análisis de Riesgo:** Evalúa el impacto potencial de la amenaza sobre la reputación del BCV y la estabilidad de las instituciones del Estado. Identifica a los actores clave que la promueven.
+                3.  **Línea Argumental Sugerida (Respuesta Institucional):** Desarrolla una propuesta de contra-narrativa o respuesta oficial. Esta línea argumental debe ser **estrictamente institucional y alineada con la política comunicacional del Gobierno Nacional de Venezuela**. El objetivo es neutralizar la amenaza, defender la gestión gubernamental y reforzar la confianza en el BCV. La respuesta debe ser sólida, basada en datos (si es posible) y enfocada en la soberanía y la resiliencia económica de la nación.
             `;
             break;
     }
@@ -355,82 +359,7 @@ export const fetchEconomicNews = async (searchType: NewsSearchType): Promise<Eco
     }
 };
 
-export const generateSimulatedTelegramFeed = async (channels: string[]): Promise<TelegramMessage[]> => {
-    if (!apiKey) {
-        throw new Error("La clave de API de Gemini no está configurada.");
-    }
 
-    const prompt = `
-        **Rol:** Eres un simulador de un feed de Telegram para un analista del Banco Central de Venezuela.
-        **Tarea:** Genera una lista de 8 mensajes de Telegram recientes y realistas que simulen la actividad de las últimas horas en los siguientes canales de Venezuela.
-        **Canales a simular:** ${channels.join(', ')}.
-        
-        **Requisitos de los Mensajes:**
-        1.  **Temas:** Los mensajes deben centrarse en economía, finanzas, política y noticias relevantes para Venezuela, desde la perspectiva de cada canal. Incluye anuncios del BCV, fluctuaciones del tipo de cambio, análisis económicos, noticias políticas con impacto económico, etc.
-        2.  **Estilo:** Imita el tono y estilo de cada canal (algunos más oficiales, otros más analíticos o críticos).
-        3.  **Realismo:** Los mensajes deben parecer auténticos y actuales. Usa timestamps relativos y creíbles (ej: "hace 5 minutos", "hace 1 hora", "hace 3 horas").
-        4.  **Formato:** La respuesta debe ser un objeto JSON que contenga una única clave "messages" cuyo valor sea un array de objetos. Cada objeto debe tener los siguientes campos: "id" (un número único y secuencial), "channel" (el nombre del canal de la lista), "text" (el contenido del mensaje), y "timestamp" (el tiempo relativo).
-
-        **Ejemplo de estructura de un mensaje:**
-        {
-          "id": 1,
-          "channel": "bcv_oficial",
-          "text": "El tipo de cambio de referencia para el día de mañana se ubica en 36.52 Bs/USD.",
-          "timestamp": "hace 15 minutos"
-        }
-    `;
-
-    try {
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        messages: {
-                            type: Type.ARRAY,
-                            items: {
-                                type: Type.OBJECT,
-                                properties: {
-                                    id: { type: Type.INTEGER },
-                                    channel: { type: Type.STRING },
-                                    text: { type: Type.STRING },
-                                    timestamp: { type: Type.STRING }
-                                },
-                                required: ["id", "channel", "text", "timestamp"]
-                            }
-                        }
-                    },
-                    required: ["messages"]
-                }
-            }
-        });
-
-        const jsonText = response.text;
-        const parsed = JSON.parse(jsonText);
-        
-        if (parsed && Array.isArray(parsed.messages)) {
-            // Sort messages to appear somewhat chronologically based on typical relative timestamps
-            return parsed.messages.sort((a, b) => {
-                const aTime = a.timestamp.toLowerCase();
-                const bTime = b.timestamp.toLowerCase();
-                if (aTime.includes('minuto')) return -1;
-                if (bTime.includes('minuto')) return 1;
-                if (aTime.includes('hora') && bTime.includes('horas')) return -1;
-                return 0;
-            });
-        } else {
-            console.error("Generated feed has unexpected structure:", parsed);
-            return [];
-        }
-
-    } catch (error) {
-        console.error("Error generating simulated Telegram feed:", error);
-        throw new Error("No se pudo generar el feed de monitoreo simulado. Inténtelo más tarde.");
-    }
-};
 
 /**
  * Generate content using DeepSeek API for BCV communications

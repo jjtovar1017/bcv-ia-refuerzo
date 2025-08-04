@@ -189,11 +189,9 @@ export class RealTrackingService {
                 }
             }
 
-            // If no real devices, return mock data
+            // If no real devices, return an empty array
             if (allDevices.length === 0) {
-                const mockDevices = this.getMockDevices();
-                await this.cacheResponse(cacheKey, mockDevices);
-                return mockDevices;
+                return [];
             }
 
             await this.cacheResponse(cacheKey, allDevices);
@@ -261,8 +259,8 @@ export class RealTrackingService {
                 }
             }
 
-            // Return mock position if no real data
-            return this.getMockPosition(deviceId);
+            // Return null if no real data
+            return null;
         } catch (error) {
             Sentry.captureException(error);
             console.error(`Failed to get position for device ${deviceId}:`, error);
@@ -526,58 +524,7 @@ export class RealTrackingService {
         }
     }
 
-    // Mock data methods for fallback
-    private getMockDevices(): GPSDevice[] {
-        return [
-            {
-                id: 'vehicle-001',
-                imei: '123456789012345',
-                name: 'Vehículo BCV-001',
-                type: 'vehicle',
-                status: 'active',
-                lastSeen: new Date(),
-                batteryLevel: 85,
-                assignedTo: 'Juan Pérez'
-            },
-            {
-                id: 'personnel-001',
-                imei: '123456789012346',
-                name: 'Personal BCV-001',
-                type: 'personnel',
-                status: 'active',
-                lastSeen: new Date(),
-                batteryLevel: 72,
-                assignedTo: 'María González'
-            },
-            {
-                id: 'equipment-001',
-                imei: '123456789012347',
-                name: 'ATM Móvil BCV-15',
-                type: 'equipment',
-                status: 'maintenance',
-                lastSeen: new Date(),
-                assignedTo: 'Técnico de Mantenimiento'
-            }
-        ];
-    }
-
-    private getMockPosition(deviceId: string): GPSPosition {
-        // Generate realistic position around Caracas
-        const baseLatitude = 10.4806;
-        const baseLongitude = -66.9036;
-        const offset = (Math.random() - 0.5) * 0.01; // Small random offset
-        
-        return {
-            deviceId,
-            latitude: baseLatitude + offset,
-            longitude: baseLongitude + offset,
-            accuracy: 3.5,
-            speed: Math.random() * 50,
-            heading: Math.random() * 360,
-            timestamp: new Date(),
-            satellites: 8 + Math.floor(Math.random() * 4)
-        };
-    }
+    
 
     /**
      * Clear all cached data
