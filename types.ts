@@ -52,7 +52,7 @@ export interface EconomicNewsResult {
 
 export type TranscriptionSource = { type: 'file'; payload: File } | { type: 'url'; payload: string };
 
-export type NewsSearchType = 'economic' | 'mixed' | 'threat_alert';
+export type NewsSearchType = 'economic_analysis' | 'market_trends' | 'threat_alert' | 'policy_updates' | 'custom';
 
 export interface Notification {
     id: string;

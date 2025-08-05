@@ -3,7 +3,7 @@ import React, { useState, useCallback } from 'react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import Spinner from '../ui/Spinner';
-import { transcribeAudioWithGemini } from '../../services/geminiService';
+import { transcriptionService } from '../../services/transcriptionService';
 import { TranscriptionSource } from '../../types';
 import { MicrophoneIcon, DocumentDuplicateIcon, LinkIcon } from '../icons/Icons';
 
@@ -18,11 +18,19 @@ const AudioTranscriber: React.FC = () => {
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = event.target.files?.[0];
         if (selectedFile) {
-            const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
+            const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
             if (selectedFile.size > MAX_FILE_SIZE) {
-                setError('El archivo es demasiado grande. Por favor, seleccione un archivo de menos de 25MB.');
+                setError('El archivo es demasiado grande. Por favor, seleccione un archivo de menos de 100MB.');
                 setInputFile(null);
                 event.target.value = ''; // Reset file input to allow re-selection of the same file
+                return;
+            }
+            
+            // Check if file type is supported
+            if (!transcriptionService.isFileTypeSupported(selectedFile)) {
+                setError('Formato de archivo no compatible. Use MP3, MP4, WAV, M4A, FLAC, OGG, WEBM, etc.');
+                setInputFile(null);
+                event.target.value = '';
                 return;
             }
             setInputFile(selectedFile);
@@ -62,7 +70,7 @@ const AudioTranscriber: React.FC = () => {
         setTranscript('');
 
         try {
-            const resultTranscript = await transcribeAudioWithGemini(source);
+            const resultTranscript = await transcriptionService.transcribeAudio(source);
             setTranscript(resultTranscript);
         } catch (e: any) {
             setError(e.message || 'Error al procesar la solicitud.');
