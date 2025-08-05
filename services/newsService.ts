@@ -50,28 +50,16 @@ export class NewsService {
             baseURL: 'https://newsapi.org/v2',
             timeout: 30000,
             headers: {
-<<<<<<< HEAD
                 'X-API-Key': this.newsApiKey
                 // Removed User-Agent header as it's not allowed in browsers
-=======
-                'X-API-Key': this.newsApiKey,
-                'User-Agent': 'BCV-NewsMonitor/1.0'
->>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
             }
         });
 
         // Exchange rates API client (free service)
         this.exchangeApiClient = axios.create({
             baseURL: 'https://api.exchangerate-api.com/v4',
-<<<<<<< HEAD
             timeout: 15000
             // Removed User-Agent header as it's not allowed in browsers
-=======
-            timeout: 15000,
-            headers: {
-                'User-Agent': 'BCV-ExchangeMonitor/1.0'
-            }
->>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
         });
 
         this.setupInterceptors();
@@ -169,20 +157,16 @@ export class NewsService {
         const cached = await this.getCachedResponse<EconomicNewsResult>(cacheKey);
         if (cached) return cached;
 
-<<<<<<< HEAD
         // If no API key, return fallback immediately
         if (!this.newsApiKey) {
             console.warn('News API key not available, using fallback data');
             return this.getFallbackEconomicResult(searchType);
         }
 
-=======
->>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
         try {
             const query = this.getSearchQuery(searchType);
             const sources = this.getRelevantSources(searchType);
             
-<<<<<<< HEAD
             const response = await this.newsApiClient.get('/everything', {
                 params: {
                     q: query,
@@ -202,29 +186,6 @@ export class NewsService {
             // If no results from API, use fallback data
             if (articles.length === 0) {
                 console.warn('No articles from News API, using fallback data');
-=======
-            let articles: NewsAPIArticle[] = [];
-            
-            if (this.newsApiKey) {
-                const response = await this.newsApiClient.get('/everything', {
-                    params: {
-                        q: query,
-                        sources: sources,
-                        language: 'es',
-                        sortBy: 'publishedAt',
-                        pageSize: 20,
-                        from: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() // Last 7 days
-                    }
-                });
-
-                if (response.data.status === 'ok') {
-                    articles = response.data.articles;
-                }
-            }
-
-            // If no API key or no results, use fallback data
-            if (articles.length === 0) {
->>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
                 articles = this.getFallbackNews(searchType);
             }
 
@@ -244,7 +205,6 @@ export class NewsService {
             return result;
 
         } catch (error) {
-<<<<<<< HEAD
             // Check if it's a specific API error (426, 429, etc.)
             const isApiError = error.response?.status === 426 || error.response?.status === 429 || error.response?.status === 403;
             
@@ -256,12 +216,6 @@ export class NewsService {
             }
             
             // Return fallback result for any error
-=======
-            Sentry.captureException(error);
-            console.error('Failed to fetch economic news:', error);
-            
-            // Return fallback result
->>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
             return this.getFallbackEconomicResult(searchType);
         }
     }
@@ -440,14 +394,9 @@ export class NewsService {
     private getFallbackNews(searchType: NewsSearchType): NewsAPIArticle[] {
         const now = new Date();
         const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-<<<<<<< HEAD
         const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
 
         const baseNews = [
-=======
-
-        return [
->>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
             {
                 source: { id: null, name: 'BCV Oficial' },
                 author: 'Banco Central de Venezuela',
@@ -467,7 +416,6 @@ export class NewsService {
                 urlToImage: null,
                 publishedAt: yesterday.toISOString(),
                 content: null
-<<<<<<< HEAD
             },
             {
                 source: { id: null, name: 'Reuters Venezuela' },
@@ -555,10 +503,6 @@ export class NewsService {
         };
 
         return typeSpecific[searchType] || typeSpecific.custom;
-=======
-            }
-        ];
->>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
     }
 
     /**
