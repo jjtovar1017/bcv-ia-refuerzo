@@ -151,8 +151,8 @@ const TelegramMonitor: React.FC = () => {
     
     const renderNewsView = () => {
         const newsTitle = 
-            currentSearchType === 'economic' ? 'Noticias Económicas de Actualidad'
-            : currentSearchType === 'mixed' ? 'Noticias Relevantes de Actualidad'
+            currentSearchType === 'economic_analysis' ? 'Noticias Económicas de Actualidad'
+            : currentSearchType === 'custom' ? 'Noticias Relevantes de Actualidad'
             : currentSearchType === 'threat_alert' ? 'Análisis de Riesgos a la Reputación'
             : 'Resultados de Búsqueda';
         
@@ -307,8 +307,8 @@ const TelegramMonitor: React.FC = () => {
                  <Card title="Acciones">
                     <div className="space-y-3">
                         <Button
-                            onClick={() => handleFetchNews('economic')}
-                            isLoading={isFetchingNews && currentSearchType === 'economic'}
+                            onClick={() => handleFetchNews('economic_analysis')}
+                            isLoading={isFetchingNews && currentSearchType === 'economic_analysis'}
                             disabled={isFetchingNews}
                             className="w-full justify-center"
                         >
@@ -316,8 +316,8 @@ const TelegramMonitor: React.FC = () => {
                             Noticias Económicas
                         </Button>
                         <Button
-                            onClick={() => handleFetchNews('mixed')}
-                            isLoading={isFetchingNews && currentSearchType === 'mixed'}
+                            onClick={() => handleFetchNews('custom')}
+                            isLoading={isFetchingNews && currentSearchType === 'custom'}
                             disabled={isFetchingNews}
                             variant="secondary"
                             className="w-full justify-center"
