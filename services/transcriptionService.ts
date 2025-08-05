@@ -34,7 +34,7 @@ export class TranscriptionService {
             baseURL: 'https://api.assemblyai.com/v2',
             timeout: 300000, // 5 minutes for transcription
             headers: {
-                'Authorization': this.assemblyAiKey,
+                'Authorization': `Bearer ${this.assemblyAiKey}`,
                 'Content-Type': 'application/json'
             }
         });

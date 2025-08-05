@@ -7,12 +7,15 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Node dependencies
 node_modules
+
+# Build artifacts
 dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# Editor and system files
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -23,7 +26,5 @@ dist-ssr
 *.sln
 *.sw?
 
-.vercel
-
-# Local Netlify folder
-.netlify
+# Environment variables
+.env
