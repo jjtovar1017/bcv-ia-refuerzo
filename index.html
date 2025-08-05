@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#1a1a2e" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Asistente de Medios BCV</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'bcv-blue': '#0033A0',
+              'bcv-gold': '#FFD700',
+              'bcv-dark': '#001A4D',
+              'bcv-gray': {
+                100: '#F0F4F8',
+                200: '#D9E2EC',
+                300: '#BCCCDC',
+                400: '#9FB3C8',
+                500: '#829AB1',
+                600: '#627D98',
+                700: '#486581',
+                800: '#334E68',
+                900: '#243B53',
+              }
+            }
+          }
+        }
+      }
+    </script>
+
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-bcv-gray-100">
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
