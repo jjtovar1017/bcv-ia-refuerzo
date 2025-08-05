@@ -33,12 +33,12 @@ const LiveFeed: React.FC<LiveFeedProps> = ({ messages, isLoading }) => {
             {isLoading ? (
                 <div className="flex flex-col items-center justify-center h-48">
                     <Spinner size={8} />
-                    <p className="mt-4 text-bcv-gray-600">Generando feed simulado...</p>
+                    <p className="mt-4 text-bcv-gray-600">Cargando noticias en tiempo real...</p>
                 </div>
             ) : messages.length === 0 ? (
                 <div className="text-center py-10 text-bcv-gray-500">
-                    <p>No se pudo generar el feed de monitoreo.</p>
-                    <p className="text-xs">Intente refrescar la página.</p>
+                    <p>No hay noticias disponibles en este momento.</p>
+                    <p className="text-xs">Los canales se están configurando o no hay mensajes recientes.</p>
                 </div>
             ) : (
                 <ul className="space-y-4">
@@ -53,16 +53,28 @@ const LiveFeed: React.FC<LiveFeedProps> = ({ messages, isLoading }) => {
                                 <p className="text-sm text-bcv-gray-800">{msg.text}</p>
                                 <div className="flex items-center justify-between mt-1">
                                     <p className="text-xs text-bcv-gray-500">{msg.timestamp}</p>
-                                    {msg.url && (
-                                        <button
-                                            onClick={() => window.open(msg.url, '_blank')}
-                                            className="text-xs text-bcv-blue hover:text-bcv-blue-dark flex items-center gap-1"
-                                            title="Ver fuente original"
-                                        >
-                                            <ExternalLinkIcon className="w-3 h-3" />
-                                            Ver fuente
-                                        </button>
-                                    )}
+                                    <div className="flex items-center gap-2">
+                                        {msg.telegramUrl && (
+                                            <button
+                                                onClick={() => window.open(msg.telegramUrl, '_blank')}
+                                                className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1 px-2 py-1 rounded-md hover:bg-blue-50"
+                                                title="Ver mensaje en Telegram"
+                                            >
+                                                <ExternalLinkIcon className="w-3 h-3" />
+                                                Telegram
+                                            </button>
+                                        )}
+                                        {msg.url && msg.url !== msg.telegramUrl && (
+                                            <button
+                                                onClick={() => window.open(msg.url, '_blank')}
+                                                className="text-xs text-bcv-blue hover:text-bcv-blue-dark flex items-center gap-1 px-2 py-1 rounded-md hover:bg-bcv-blue hover:bg-opacity-10"
+                                                title="Ver archivo o fuente original"
+                                            >
+                                                <ExternalLinkIcon className="w-3 h-3" />
+                                                Archivo
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </li>

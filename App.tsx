@@ -9,6 +9,7 @@ import ContentGenerator from './components/generator/ContentGenerator';
 import AudioTranscriber from './components/transcription/AudioTranscriber';
 import TelegramMonitor from './components/monitoring/TelegramMonitor';
 import InstitutionalAnalysis from './components/analysis/InstitutionalAnalysis';
+import EconomicAlertsDashboard from './components/alerts/EconomicAlertsDashboard';
 import SettingsPage from './components/settings/SettingsPage';
 
 const App: React.FC = () => {
@@ -43,6 +44,7 @@ const App: React.FC = () => {
                                 <Route path="/transcriptor" element={<AudioTranscriber />} />
                                 <Route path="/monitoreo" element={<TelegramMonitor />} />
                                 <Route path="/analisis" element={<InstitutionalAnalysis />} />
+                                <Route path="/alertas" element={<EconomicAlertsDashboard />} />
                                 <Route path="/configuracion" element={<SettingsPage />} />
                             </Routes>
                         </div>

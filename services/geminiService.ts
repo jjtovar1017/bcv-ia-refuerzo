@@ -49,7 +49,6 @@ const generateDeepSeekContent = async (topic: string, contentType: string, promp
     return `[SIMULACIÓN DE DEEPSEEK] Se generó el contenido para el tema "${topic}" con tipo "${contentType}" a partir del prompt proporcionado.`;
 };
 
-
 export const generateBcvContent = async (
     topic: string,
     contentType: string,

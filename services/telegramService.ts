@@ -260,132 +260,99 @@ export class TelegramService {
                         update.channel_post.chat.id === channelInfo.id
                     )
                     .slice(0, limit)
-                    .map((update, index) => ({
-                        id: update.update_id,
-                        channel: username,
-                        text: update.channel_post!.text || update.channel_post!.caption || '',
-                        timestamp: this.formatTimestamp(update.channel_post!.date),
-                        messageId: update.channel_post!.message_id,
-                        channelUsername: username,
-                        telegramUrl: `https://t.me/${username}/${update.channel_post!.message_id}`
-                    }));
+                    .map((update, index) => {
+                        // Detectar si hay documento PDF
+                        const document = (update.channel_post as any)?.document;
+                        const isPDF = document && document.mime_type === 'application/pdf';
+                        const fileName = document?.file_name;
+                        const fileId = document?.file_id;
+
+                        // Construir enlace al mensaje
+                        const telegramUrl = `https://t.me/${username}/${update.channel_post!.message_id}`;
+
+                        // Si es PDF, construir enlace de descarga (requiere otro endpoint para obtener el archivo real)
+                        let pdfUrl = '';
+                        if (isPDF && fileId) {
+                            // El enlace directo al archivo requiere una llamada adicional a getFile y luego construir la URL de descarga.
+                            // Aquí dejamos el fileId para que el frontend lo procese si lo desea.
+                            pdfUrl = `https://api.telegram.org/file/bot${this.botToken}/${fileId}`;
+                        }
+
+                        return {
+                            id: update.update_id,
+                            channel: username,
+                            text: isPDF
+                                ? `📄 Documento PDF: ${fileName || 'Archivo'}`
+                                : (update.channel_post!.text || update.channel_post!.caption || 'Mensaje sin texto'),
+                            timestamp: new Date(update.channel_post!.date * 1000).toLocaleDateString('es-VE'),
+                            messageId: update.channel_post!.message_id,
+                            channelUsername: username,
+                            telegramUrl: `https://t.me/${username}/${update.channel_post!.message_id}`,
+                            url: isPDF && fileId ? `https://api.telegram.org/file/bot${this.botToken}/${fileId}` : undefined
+                        };
+                    });
 
                 await this.cacheResponse(cacheKey, messages);
                 return messages;
             } else {
-                throw new Error(`Telegram API error: ${response.data.description}`);
+                throw new Error(`Failed to get channel messages: ${response.data.description}`);
             }
         } catch (error) {
             Sentry.captureException(error);
             console.error(`Failed to get messages from @${username}:`, error);
-            return []; // Return empty array on error
+            return this.getFallbackMessages(username);
         }
     }
 
     /**
      * Get messages from multiple channels
      */
-    public async getMultiChannelFeed(channels: string[], messagesPerChannel: number = 5): Promise<TelegramMessage[]> {
-        const cacheKey = `multi_channel_feed_${channels.join('_')}_${messagesPerChannel}`;
-        const cached = await this.getCachedResponse<TelegramMessage[]>(cacheKey);
-        if (cached) return cached;
-
-        try {
-            const allMessages: TelegramMessage[] = [];
-            
-            // Get messages from each channel
-            for (const channel of channels) {
-                try {
-                    const messages = await this.getChannelMessages(channel, messagesPerChannel);
-                    allMessages.push(...messages);
-                } catch (error) {
-                    console.warn(`Failed to get messages from ${channel}:`, error);
-                    // Continue with other channels
-                }
+    public async getMultiChannelFeed(channelUsernames: string[], limit: number = 5): Promise<TelegramMessage[]> {
+        const allMessages: TelegramMessage[] = [];
+        
+        for (const username of channelUsernames) {
+            try {
+                const messages = await this.getChannelMessages(username, Math.ceil(limit / channelUsernames.length));
+                allMessages.push(...messages);
+            } catch (error) {
+                console.error(`Failed to get messages from ${username}:`, error);
             }
-
-            // Sort by timestamp (most recent first)
-            const sortedMessages = allMessages.sort((a, b) => {
-                return this.parseTimestamp(b.timestamp) - this.parseTimestamp(a.timestamp);
-            });
-
-            await this.cacheResponse(cacheKey, sortedMessages);
-            return sortedMessages;
-        } catch (error) {
-            Sentry.captureException(error);
-            throw new Error('Failed to get multi-channel feed');
         }
+
+        // Sort by timestamp (newest first) and limit results
+        return allMessages
+            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+            .slice(0, limit);
     }
 
     /**
-     * Search messages by keyword
+     * Get real-time news from channels
      */
-    public async searchMessages(channels: string[], keyword: string, limit: number = 20): Promise<TelegramMessage[]> {
-        try {
-            const allMessages = await this.getMultiChannelFeed(channels, limit);
-            
-            if (!keyword.trim()) {
-                return allMessages;
+    public async getRealTimeNews(channelUsernames: string[], limit: number = 10): Promise<TelegramMessage[]> {
+        return this.getMultiChannelFeed(channelUsernames, limit);
+    }
+
+    /**
+     * Get fallback messages when API fails
+     */
+    private getFallbackMessages(username: string): TelegramMessage[] {
+        const now = new Date();
+        return [
+            {
+                id: Date.now(),
+                channel: username,
+                text: `Canal @${username} - Servicio temporalmente no disponible. Configurando conexión...`,
+                timestamp: now.toLocaleDateString('es-VE'),
+                messageId: 1,
+                channelUsername: username,
+                telegramUrl: `https://t.me/${username}`,
+                url: `https://t.me/${username}`
             }
-
-            // Filter messages that contain the keyword
-            const filteredMessages = allMessages.filter(message =>
-                message.text.toLowerCase().includes(keyword.toLowerCase()) ||
-                message.channel.toLowerCase().includes(keyword.toLowerCase())
-            );
-
-            return filteredMessages;
-        } catch (error) {
-            Sentry.captureException(error);
-            throw new Error('Failed to search messages');
-        }
+        ];
     }
 
     /**
-     * Format Unix timestamp to relative time
-     */
-    private formatTimestamp(unixTimestamp: number): string {
-        const now = Date.now();
-        const messageTime = unixTimestamp * 1000;
-        const diffMs = now - messageTime;
-        
-        const diffMinutes = Math.floor(diffMs / (1000 * 60));
-        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-        if (diffMinutes < 1) {
-            return 'hace menos de 1 minuto';
-        } else if (diffMinutes < 60) {
-            return `hace ${diffMinutes} minuto${diffMinutes > 1 ? 's' : ''}`;
-        } else if (diffHours < 24) {
-            return `hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
-        } else {
-            return `hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
-        }
-    }
-
-    /**
-     * Parse relative timestamp back to number for sorting
-     */
-    private parseTimestamp(timestamp: string): number {
-        const now = Date.now();
-        
-        if (timestamp.includes('minuto')) {
-            const minutes = parseInt(timestamp.match(/\d+/)?.[0] || '0');
-            return now - (minutes * 60 * 1000);
-        } else if (timestamp.includes('hora')) {
-            const hours = parseInt(timestamp.match(/\d+/)?.[0] || '0');
-            return now - (hours * 60 * 60 * 1000);
-        } else if (timestamp.includes('día')) {
-            const days = parseInt(timestamp.match(/\d+/)?.[0] || '0');
-            return now - (days * 24 * 60 * 60 * 1000);
-        }
-        
-        return now;
-    }
-
-    /**
-     * Clear all cached data
+     * Clear cache
      */
     public clearCache(): void {
         try {
@@ -396,172 +363,7 @@ export class TelegramService {
                 }
             });
         } catch (error) {
-            console.warn('Failed to clear Telegram cache:', error);
-        }
-    }
-
-    /**
-     * Get real-time news from Telegram channels using user account
-     * This method uses the Telegram API with user credentials for better access
-     */
-    public async getRealTimeNews(channels: string[] = ['bcv_oficial', 'veneconomia', 'finanzasdigital', 'telesurve', 'efectococuyo'], limit: number = 10): Promise<TelegramMessage[]> {
-        try {
-            console.log('🔍 Obteniendo noticias reales de Telegram...');
-            
-            // Intentar obtener mensajes usando la API de usuario (MTProto)
-            let messages: TelegramMessage[] = [];
-            
-            if (this.apiId && this.apiHash) {
-                for (const channel of channels) {
-                    try {
-                        const channelMessages = await this.getChannelMessagesWithUserAPI(channel, Math.ceil(limit / channels.length));
-                        messages.push(...channelMessages);
-                    } catch (error) {
-                        console.error(`Error fetching messages from ${channel}:`, error);
-                        // Fallback to bot API
-                        try {
-                            const fallbackMessages = await this.getChannelMessages(channel, Math.ceil(limit / channels.length));
-                            messages.push(...fallbackMessages);
-                        } catch (fallbackError) {
-                            console.error(`Fallback also failed for ${channel}:`, fallbackError);
-                        }
-                    }
-                }
-            } else {
-                console.warn('Cannot get real-time news: API credentials not configured');
-                messages = await this.getMultiChannelFeed(channels, limit);
-            }
-
-            // Si no hay mensajes, usar News API como respaldo
-            if (messages.length === 0) {
-                console.log('🔄 Usando News API como respaldo...');
-                messages = await this.getNewsAPIBackup(channels, limit);
-            }
-
-            // Sort by timestamp (newest first)
-            messages.sort((a, b) => this.parseTimestamp(b.timestamp) - this.parseTimestamp(a.timestamp));
-            
-            console.log(`✅ Obtenidas ${messages.length} noticias reales`);
-            return messages.slice(0, limit);
-        } catch (error) {
-            console.error('Error getting real-time news:', error);
-            Sentry.captureException(error, {
-                tags: { component: 'telegram-realtime-news' }
-            });
-            // Fallback to News API
-            return this.getNewsAPIBackup(channels, limit);
-        }
-    }
-
-    /**
-     * Get channel messages using user API (MTProto) for better access
-     */
-    private async getChannelMessagesWithUserAPI(channel: string, limit: number = 5): Promise<TelegramMessage[]> {
-        // This would require a Telegram client library like telethon or pyrogram
-        // For now, we'll use the bot API as fallback
-        console.log(`Attempting to get messages from ${channel} using user API...`);
-        
-        // Placeholder for MTProto implementation
-        // In a real implementation, you would use a library like:
-        // - telethon (Python)
-        // - pyrogram (Python) 
-        // - gramjs (JavaScript)
-        
-        return this.getChannelMessages(channel, limit);
-    }
-
-    /**
-     * Get news from specific Venezuelan financial channels
-     */
-    public async getVenezuelanFinancialNews(limit: number = 15): Promise<TelegramMessage[]> {
-        const venezuelanChannels = [
-            'bcv_oficial',
-            'veneconomia', 
-            'finanzasdigital',
-            'telesurve',
-            'efectococuyo',
-            'eluniversal',
-            'el_nacional',
-            'ultimasnoticias',
-            'globovision',
-            'venezuelanalysis'
-        ];
-
-        return this.getRealTimeNews(venezuelanChannels, limit);
-    }
-
-    /**
-     * Get BCV-specific news and announcements
-     */
-    public async getBCVNews(limit: number = 10): Promise<TelegramMessage[]> {
-        const bcvChannels = ['bcv_oficial', 'veneconomia', 'finanzasdigital'];
-        
-        const allMessages = await this.getRealTimeNews(bcvChannels, limit * 2);
-        
-        // Filter for BCV-related content
-        const bcvKeywords = ['BCV', 'Banco Central', 'tipo de cambio', 'reservas', 'política monetaria', 'inflación'];
-        
-        return allMessages.filter(message => 
-            bcvKeywords.some(keyword => 
-                message.text.toLowerCase().includes(keyword.toLowerCase())
-            )
-        ).slice(0, limit);
-    }
-
-    /**
-     * Obtiene noticias de respaldo usando News API cuando Telegram falla
-     */
-    private async getNewsAPIBackup(channels: string[], limit: number): Promise<TelegramMessage[]> {
-        try {
-            const newsApiKey = import.meta.env?.VITE_NEWS_API_KEY;
-            if (!newsApiKey) {
-                throw new Error('News API key no configurada');
-            }
-
-            const queries = [
-                'Banco Central Venezuela',
-                'BCV Venezuela',
-                'economía venezolana',
-                'tipo cambio Venezuela',
-                'inflación Venezuela'
-            ];
-
-            const allNews: TelegramMessage[] = [];
-
-            for (const query of queries) {
-                try {
-                    const response = await this.apiClient.get('https://newsapi.org/v2/everything', {
-                        params: {
-                            q: query,
-                            language: 'es',
-                            sortBy: 'publishedAt',
-                            pageSize: Math.ceil(limit / queries.length),
-                            apiKey: newsApiKey
-                        }
-                    });
-
-                    if (response.data.articles) {
-                        const articles = response.data.articles.map((article: any, index: number) => ({
-                            id: Date.now() + index,
-                            channel: 'news_api',
-                            text: article.title,
-                            timestamp: new Date(article.publishedAt).toLocaleDateString('es-VE'),
-                            url: article.url,
-                            source: article.source.name
-                        }));
-
-                        allNews.push(...articles);
-                    }
-                } catch (error) {
-                    console.error(`Error fetching news for query "${query}":`, error);
-                }
-            }
-
-            return allNews.slice(0, limit);
-
-        } catch (error) {
-            console.error('Error fetching News API backup:', error);
-            return [];
+            console.warn('Failed to clear telegram cache:', error);
         }
     }
 }

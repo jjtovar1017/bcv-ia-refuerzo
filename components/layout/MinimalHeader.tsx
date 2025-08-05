@@ -18,10 +18,10 @@ const MinimalHeader: React.FC = () => {
                         </div>
                     )}
                     <div>
-                        <h1 className="text-xl font-semibold text-bcv-dark md:text-2xl">
+                        <h1 className="text-lg font-semibold text-bcv-dark md:text-xl">
                             {title}
                         </h1>
-                        <p className="text-sm text-bcv-gray-600 hidden md:block">
+                        <p className="text-xs text-bcv-gray-600 hidden md:block">
                             Banco Central de Venezuela
                         </p>
                     </div>

@@ -6,11 +6,12 @@ import Select from '../ui/Select';
 import { AI_MODELS, CONTENT_TYPES } from '../../constants';
 import { AIModel, AIModelOption } from '../../types';
 import { generateBcvContent, generateImageWithImagen } from '../../services/geminiService';
+import { webSearchService, ContentSuggestion } from '../../services/webSearchService';
 import Spinner from '../ui/Spinner';
 import { jsPDF } from 'jspdf';
 import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
-import { DocumentDuplicateIcon, DownloadIcon, UploadIcon, XCircleIcon, PhotoIcon } from '../icons/Icons';
+import { DocumentDuplicateIcon, DownloadIcon, UploadIcon, XCircleIcon, PhotoIcon, MagnifyingGlassIcon, CheckCircleIcon, ExclamationTriangleIcon, XMarkIcon, ExternalLinkIcon } from '../icons/Icons';
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.4.178/legacy/build/pdf.worker.js`;
@@ -32,6 +33,31 @@ const ContentGenerator: React.FC = () => {
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
     const [imageError, setImageError] = useState('');
 
+    // Web search and suggestions state
+    const [contentSuggestion, setContentSuggestion] = useState<ContentSuggestion | null>(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+
+
+    const handleAnalyzeContent = async () => {
+        if (!topic) {
+            setError('Por favor, ingrese un tema para analizar.');
+            return;
+        }
+        
+        setIsAnalyzing(true);
+        setError('');
+        
+        try {
+            const suggestion = await webSearchService.analyzeContentAndSuggest(topic, contentType);
+            setContentSuggestion(suggestion);
+            setShowSuggestions(true);
+        } catch (e: any) {
+            setError(e.message || 'Error al analizar el contenido.');
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
 
     const handleGenerate = async () => {
         if (!topic) {
@@ -45,7 +71,16 @@ const ContentGenerator: React.FC = () => {
         setImageError('');
 
         try {
-            const generatedText = await generateBcvContent(topic, contentType, selectedModel, contextText);
+            // Include web research context if available
+            let enhancedContext = contextText;
+            if (contentSuggestion && contentSuggestion.relatedNews.length > 0) {
+                const newsContext = contentSuggestion.relatedNews
+                    .map(news => `${news.title}: ${news.snippet}`)
+                    .join('\n\n');
+                enhancedContext = `${contextText}\n\nInformación adicional de fuentes web:\n${newsContext}`;
+            }
+            
+            const generatedText = await generateBcvContent(topic, contentType, selectedModel, enhancedContext);
             setResult(generatedText);
         } catch (e: any) {
             setError(e.message || 'Ocurrió un error inesperado.');
@@ -205,7 +240,83 @@ const ContentGenerator: React.FC = () => {
                         </div>
                         
                         <div>
-                            <h4 className="font-semibold text-bcv-dark mb-3">3. Elija el Modelo de IA</h4>
+                            <h4 className="font-semibold text-bcv-dark mb-3">3. Análisis Web (Recomendado)</h4>
+                            <div className="space-y-4">
+                                <Button
+                                    onClick={handleAnalyzeContent}
+                                    disabled={!topic || isAnalyzing}
+                                    variant="secondary"
+                                    className="w-full flex items-center justify-center"
+                                >
+                                    {isAnalyzing ? (
+                                        <>
+                                            <Spinner size={4} />
+                                            <span className="ml-2">Analizando...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <MagnifyingGlassIcon className="w-5 h-5 mr-2" />
+                                            Buscar Información Web
+                                        </>
+                                    )}
+                                </Button>
+                                
+                                {contentSuggestion && (
+                                    <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <h5 className="font-medium text-gray-900">Análisis del Contenido</h5>
+                                            <div className="flex items-center">
+                                                {contentSuggestion.recommendation === 'good' && (
+                                                    <CheckCircleIcon className="w-5 h-5 text-green-600" />
+                                                )}
+                                                {contentSuggestion.recommendation === 'needs_improvement' && (
+                                                    <ExclamationTriangleIcon className="w-5 h-5 text-yellow-600" />
+                                                )}
+                                                {contentSuggestion.recommendation === 'poor' && (
+                                                    <XMarkIcon className="w-5 h-5 text-red-600" />
+                                                )}
+                                                <span className="ml-1 text-sm font-medium">
+                                                    {contentSuggestion.credibilityScore}/100
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                        {contentSuggestion.suggestions.length > 0 && (
+                                            <div>
+                                                <h6 className="text-sm font-medium text-gray-700 mb-2">Sugerencias:</h6>
+                                                <ul className="text-xs text-gray-600 space-y-1">
+                                                    {contentSuggestion.suggestions.slice(0, 3).map((suggestion, index) => (
+                                                        <li key={index} className="flex items-start">
+                                                            <span className="w-1 h-1 bg-gray-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                                                            {suggestion}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                        
+                                        {contentSuggestion.relatedNews.length > 0 && (
+                                            <div>
+                                                <h6 className="text-sm font-medium text-gray-700 mb-2">Fuentes Encontradas:</h6>
+                                                <div className="text-xs text-gray-600">
+                                                    {contentSuggestion.relatedNews.length} artículos relevantes
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        <button
+                                            onClick={() => setShowSuggestions(!showSuggestions)}
+                                            className="text-xs text-blue-600 hover:text-blue-800"
+                                        >
+                                            {showSuggestions ? 'Ocultar detalles' : 'Ver detalles completos'}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 className="font-semibold text-bcv-dark mb-3">4. Elija el Modelo de IA</h4>
                             <div className="space-y-2">
                                 <Select
                                     id="ai-model"
@@ -309,6 +420,126 @@ const ContentGenerator: React.FC = () => {
                     )}
                 </Card>
             </div>
+            
+            {/* Panel de detalles expandido */}
+            {showSuggestions && contentSuggestion && (
+                <div className="lg:col-span-3 mt-8">
+                    <Card title="Análisis Detallado de Contenido">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Sugerencias y Recomendaciones */}
+                            <div className="space-y-4">
+                                <div>
+                                    <h4 className="font-semibold text-bcv-dark mb-3 flex items-center">
+                                        {contentSuggestion.recommendation === 'good' && (
+                                            <CheckCircleIcon className="w-5 h-5 text-green-600 mr-2" />
+                                        )}
+                                        {contentSuggestion.recommendation === 'needs_improvement' && (
+                                            <ExclamationTriangleIcon className="w-5 h-5 text-yellow-600 mr-2" />
+                                        )}
+                                        {contentSuggestion.recommendation === 'poor' && (
+                                            <XMarkIcon className="w-5 h-5 text-red-600 mr-2" />
+                                        )}
+                                        Evaluación: {contentSuggestion.credibilityScore}/100
+                                    </h4>
+                                    <div className="bg-gray-50 rounded-lg p-4">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-sm font-medium text-gray-700">Puntuación de Credibilidad</span>
+                                            <span className="text-sm font-bold text-gray-900">{contentSuggestion.credibilityScore}%</span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 rounded-full h-2">
+                                            <div 
+                                                className={`h-2 rounded-full ${
+                                                    contentSuggestion.credibilityScore >= 70 ? 'bg-green-500' :
+                                                    contentSuggestion.credibilityScore >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                                                }`}
+                                                style={{ width: `${contentSuggestion.credibilityScore}%` }}
+                                            ></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {contentSuggestion.suggestions.length > 0 && (
+                                    <div>
+                                        <h5 className="font-medium text-gray-900 mb-3">Sugerencias de Mejora</h5>
+                                        <ul className="space-y-2">
+                                            {contentSuggestion.suggestions.map((suggestion, index) => (
+                                                <li key={index} className="flex items-start bg-blue-50 p-3 rounded-md">
+                                                    <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                                    <span className="text-sm text-gray-700">{suggestion}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                                
+                                {contentSuggestion.improvementTips.length > 0 && (
+                                    <div>
+                                        <h5 className="font-medium text-gray-900 mb-3">Consejos de Mejora</h5>
+                                        <ul className="space-y-2">
+                                            {contentSuggestion.improvementTips.map((tip, index) => (
+                                                <li key={index} className="flex items-start bg-yellow-50 p-3 rounded-md">
+                                                    <ExclamationTriangleIcon className="w-4 h-4 text-yellow-600 mt-0.5 mr-3 flex-shrink-0" />
+                                                    <span className="text-sm text-gray-700">{tip}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            {/* Fuentes y Noticias Relacionadas */}
+                            <div className="space-y-4">
+                                {contentSuggestion.keyPoints.length > 0 && (
+                                    <div>
+                                        <h5 className="font-medium text-gray-900 mb-3">Puntos Clave Identificados</h5>
+                                        <ul className="space-y-2">
+                                            {contentSuggestion.keyPoints.map((point, index) => (
+                                                <li key={index} className="flex items-start bg-green-50 p-3 rounded-md">
+                                                    <CheckCircleIcon className="w-4 h-4 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
+                                                    <span className="text-sm text-gray-700">{point}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                                
+                                {contentSuggestion.relatedNews.length > 0 && (
+                                    <div>
+                                        <h5 className="font-medium text-gray-900 mb-3">Fuentes de Información ({contentSuggestion.relatedNews.length})</h5>
+                                        <div className="space-y-3 max-h-96 overflow-y-auto">
+                                            {contentSuggestion.relatedNews.map((news, index) => (
+                                                <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex-1">
+                                                            <h6 className="font-medium text-gray-900 text-sm mb-1">{news.title}</h6>
+                                                            <p className="text-xs text-gray-600 mb-2 line-clamp-2">{news.snippet}</p>
+                                                            <div className="flex items-center justify-between">
+                                                                <span className="text-xs text-gray-500">{news.source}</span>
+                                                                <div className="flex items-center space-x-2">
+                                                                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                                                        {Math.round(news.relevanceScore * 100)}% relevante
+                                                                    </span>
+                                                                    <button
+                                                                        onClick={() => window.open(news.url, '_blank')}
+                                                                        className="text-xs text-blue-600 hover:text-blue-800 flex items-center"
+                                                                    >
+                                                                        <ExternalLinkIcon className="w-3 h-3 mr-1" />
+                                                                        Ver
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+            )}
         </div>
     );
 };

@@ -96,13 +96,24 @@ setup_vercel() {
     
     # Check if environment variables are set
     local env_vars=(
-        "DEEPSEEK_API_KEY"
-        "REDIS_URL"
-        "WEBSOCKET_URL"
-        "SENTRY_DSN"
-        "SUPABASE_URL"
-        "SUPABASE_ANON_KEY"
+        "VITE_GEMINI_API_KEY"
+        "VITE_TELEGRAM_BOT_TOKEN"
+        "VITE_DEEPSEEK_API_KEY"
+        "VITE_MISTRAL_API_KEY"
+        "VITE_ASSEMBLYAI_API_KEY"
+        "VITE_SUPABASE_URL"
+        "VITE_SUPABASE_ANON_KEY"
+        "VITE_NEWS_API_KEY"
+        "VITE_SENTRY_DSN"
+        "VITE_WEBSOCKET_URL"
+        "VITE_TRACCAR_API_URL"
+        "VITE_TRACCAR_API_KEY"
+        "VITE_GPSGATE_API_URL"
+        "VITE_GPSGATE_API_KEY"
+        "VITE_FLEETCOMPLETE_API_URL"
+        "VITE_FLEETCOMPLETE_API_KEY"
     )
+    print_warning "Vite requires client-side environment variables to be prefixed with VITE_"
     
     for var in "${env_vars[@]}"; do
         if [ -z "${!var}" ]; then
@@ -198,19 +209,29 @@ Database:
 - SUPABASE_ACCESS_TOKEN: Supabase access token
 - SUPABASE_DB_URL: Direct database URL for migrations
 
-API Keys:
-- DEEPSEEK_API_KEY: DeepSeek API key
-- REDIS_URL: Redis connection URL
-- WS_URL: WebSocket server URL
-- SENTRY_DSN: Sentry error tracking DSN
-- SUPABASE_URL: Supabase project URL
-- SUPABASE_ANON_KEY: Supabase anonymous key
+API Keys (prefixed with VITE_ for frontend access):
+- VITE_GEMINI_API_KEY: Gemini API Key
+- VITE_TELEGRAM_BOT_TOKEN: Telegram Bot Token
+- VITE_DEEPSEEK_API_KEY: DeepSeek API key
+- VITE_MISTRAL_API_KEY: Mistral API Key
+- VITE_ASSEMBLYAI_API_KEY: AssemblyAI API Key
+- VITE_NEWS_API_KEY: News API Key
+- VITE_SENTRY_DSN: Sentry error tracking DSN
+- VITE_WEBSOCKET_URL: WebSocket server URL
+- VITE_SUPABASE_URL: Supabase project URL
+- VITE_SUPABASE_ANON_KEY: Supabase anonymous key
 
 Notifications:
 - SLACK_WEBHOOK_URL: Slack webhook for notifications
 - EMAIL_USERNAME: SMTP username for email notifications
 - EMAIL_PASSWORD: SMTP password
 - NOTIFICATION_EMAIL: Email address for notifications
+
+GPS Tracking Services (optional, add if used):
+- VITE_TRACCAR_API_URL: Traccar API URL
+- VITE_TRACCAR_API_KEY: Traccar API Key
+- VITE_GPSGATE_API_URL: GPS Gate API URL
+- VITE_GPSGATE_API_KEY: GPS Gate API Key
 
 Optional:
 - CODECOV_TOKEN: Codecov token for coverage reports
@@ -228,23 +249,31 @@ create_env_file() {
     if [ ! -f ".env.local" ]; then
         cat << EOF > .env.local
 # BCV Asset Tracking - Local Environment Variables
-# Copy this file and fill in your actual values
+# For Vite, all environment variables exposed to the client must start with VITE_
 
-# DeepSeek AI
-REACT_APP_DEEPSEEK_API_KEY=your_deepseek_api_key_here
+# AI Services
+VITE_GEMINI_API_KEY=your_gemini_api_key_here
+VITE_DEEPSEEK_API_KEY=your_deepseek_api_key_here
+VITE_MISTRAL_API_KEY=your_mistral_api_key_here
+VITE_ASSEMBLYAI_API_KEY=your_assemblyai_api_key_here
 
-# Redis Cache
-REACT_APP_REDIS_URL=redis://localhost:6379
+# Supabase
+VITE_SUPABASE_URL=your_supabase_url_here
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
-# WebSocket Server
-REACT_APP_WS_URL=ws://localhost:3001
+# Other Services
+VITE_TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
+VITE_NEWS_API_KEY=your_news_api_key_here
+VITE_SENTRY_DSN=your_sentry_dsn_here
+VITE_WEBSOCKET_URL=ws://localhost:3001
 
-# Sentry Error Tracking
-REACT_APP_SENTRY_DSN=your_sentry_dsn_here
-
-# Supabase Database
-REACT_APP_SUPABASE_URL=your_supabase_url_here
-REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+# GPS Tracking Services (optional)
+VITE_TRACCAR_API_URL=http://localhost:8082/api
+VITE_TRACCAR_API_KEY=
+VITE_GPSGATE_API_URL=
+VITE_GPSGATE_API_KEY=
+VITE_FLEETCOMPLETE_API_URL=
+VITE_FLEETCOMPLETE_API_KEY=
 
 # Development
 NODE_ENV=development

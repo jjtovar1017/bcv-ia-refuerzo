@@ -5,6 +5,7 @@ import { TelegramMessage, EconomicNewsResult, NewsSearchType } from '../../types
 import Button from '../ui/Button';
 import { TrashIcon, NewspaperIcon, DocumentDuplicateIcon, ShieldExclamationIcon, ShieldCheckIcon } from '../icons/Icons';
 import { telegramService } from '../../services/telegramService';
+import { newsService } from '../../services/newsService';
 import { geopoliticalAnalysisService, GeopoliticalAnalysisResult } from '../../services/geopoliticalAnalysisService';
 import { institutionalAnalysisService, InstitutionalAnalysisResult } from '../../services/institutionalAnalysisService';
 import Spinner from '../ui/Spinner';
@@ -110,7 +111,7 @@ const TelegramMonitor: React.FC = () => {
         setCopySuccess('');
         setCurrentSearchType(searchType);
         try {
-            const result = await fetchEconomicNews(searchType);
+            const result = await newsService.getEconomicNews(searchType);
             setNewsResult(result);
         } catch (e: any) {
             setNewsError(e.message || 'Ocurrió un error desconocido.');
@@ -237,15 +238,56 @@ const TelegramMonitor: React.FC = () => {
                     filteredMessages.map((msg: TelegramMessage) => (
                          <div
                             key={msg.id}
-                            className="block p-4 border-l-4 border-bcv-blue bg-bcv-gray-100 rounded-r-lg"
+                            className="block p-4 border-l-4 border-bcv-blue bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
                         >
                             <div className="flex justify-between items-center mb-2">
                                 <span className="px-2 py-1 text-xs font-bold text-white bg-bcv-blue rounded-full">
-                                    {msg.channel}
+                                    @{msg.channel}
                                 </span>
-                                <span className="text-xs text-bcv-gray-500">{msg.timestamp}</span>
+                                <div className="flex items-center space-x-2">
+                                    <span className="text-xs text-bcv-gray-500">{msg.timestamp}</span>
+                                    {msg.telegramUrl && (
+                                        <button
+                                            onClick={() => window.open(msg.telegramUrl, '_blank')}
+                                            className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1 px-2 py-1 rounded-md hover:bg-blue-50 transition-colors"
+                                            title="Ver mensaje en Telegram"
+                                        >
+                                            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12 0C5.374 0 0 5.373 0 12s5.374 12 12 12 12-5.373 12-12S18.626 0 12 0zm5.568 8.16l-1.61 7.548c-.12.54-.44.67-.89.42l-2.46-1.81-1.19 1.14c-.13.13-.24.24-.49.24l.17-2.42 4.5-4.05c.2-.18-.04-.28-.3-.1l-5.59 3.51-2.4-.75c-.52-.16-.53-.52.11-.77l9.39-3.61c.43-.16.81.1.67.64z"/>
+                                            </svg>
+                                            Telegram
+                                        </button>
+                                    )}
+                                    {msg.url && msg.url !== msg.telegramUrl && (
+                                        <button
+                                            onClick={() => window.open(msg.url, '_blank')}
+                                            className="text-xs text-green-600 hover:text-green-800 flex items-center gap-1 px-2 py-1 rounded-md hover:bg-green-50 transition-colors"
+                                            title="Ver archivo o enlace original"
+                                        >
+                                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                            </svg>
+                                            Archivo
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                            <p className="text-bcv-gray-800">{msg.text}</p>
+                            <p className="text-bcv-gray-800 leading-relaxed">{msg.text}</p>
+                            {(msg.telegramUrl || msg.url) && (
+                                <div className="mt-3 pt-3 border-t border-gray-100">
+                                    <div className="flex items-center justify-between text-xs text-gray-500">
+                                        <span>Fuentes disponibles:</span>
+                                        <div className="flex items-center space-x-1">
+                                            {msg.telegramUrl && (
+                                                <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full">Telegram</span>
+                                            )}
+                                            {msg.url && msg.url !== msg.telegramUrl && (
+                                                <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full">Archivo</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     ))
                 )}
