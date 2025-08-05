@@ -119,7 +119,11 @@ npm run deploy:vercel
 
 # O configurar manualmente cada variable
 vercel env add VITE_GEMINI_API_KEY production
+<<<<<<< HEAD
 # Ingresar: tu_gemini_api_key
+=======
+# Ingresar: AIzaSyA2ashMcxgh0v5fyi2c8WNbgWLU4e1sBeE
+>>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
 # ... (repetir para todas las variables)
 ```
 

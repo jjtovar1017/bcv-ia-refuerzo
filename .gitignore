@@ -10,7 +10,7 @@ lerna-debug.log*
 # Node dependencies
 node_modules
 
-# Build artifacts
+# Build artifacts and local files
 dist
 dist-ssr
 *.local
@@ -26,5 +26,6 @@ dist-ssr
 *.sln
 *.sw?
 
-# Environment variables
+# Environment variables and Vercel
 .env
+.vercel

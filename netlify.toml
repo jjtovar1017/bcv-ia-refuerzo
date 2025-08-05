@@ -4,6 +4,10 @@
 
 [build.environment]
   NODE_VERSION = "18"
+<<<<<<< HEAD
+=======
+  SECRETS_SCAN_OMIT_PATHS = "dist/,node_modules/"
+>>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
 
 [[redirects]]
   from = "/*"

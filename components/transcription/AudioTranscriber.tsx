@@ -3,7 +3,11 @@ import React, { useState, useCallback } from 'react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import Spinner from '../ui/Spinner';
+<<<<<<< HEAD
 import { transcriptionService } from '../../services/transcriptionService';
+=======
+import { transcribeAudioWithGemini } from '../../services/geminiService';
+>>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
 import { TranscriptionSource } from '../../types';
 import { MicrophoneIcon, DocumentDuplicateIcon, LinkIcon } from '../icons/Icons';
 
@@ -18,13 +22,20 @@ const AudioTranscriber: React.FC = () => {
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = event.target.files?.[0];
         if (selectedFile) {
+<<<<<<< HEAD
             const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
             if (selectedFile.size > MAX_FILE_SIZE) {
                 setError('El archivo es demasiado grande. Por favor, seleccione un archivo de menos de 100MB.');
+=======
+            const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
+            if (selectedFile.size > MAX_FILE_SIZE) {
+                setError('El archivo es demasiado grande. Por favor, seleccione un archivo de menos de 25MB.');
+>>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
                 setInputFile(null);
                 event.target.value = ''; // Reset file input to allow re-selection of the same file
                 return;
             }
+<<<<<<< HEAD
             
             // Check if file type is supported
             if (!transcriptionService.isFileTypeSupported(selectedFile)) {
@@ -33,6 +44,8 @@ const AudioTranscriber: React.FC = () => {
                 event.target.value = '';
                 return;
             }
+=======
+>>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
             setInputFile(selectedFile);
             setYoutubeUrl(''); // Clear the other input
             setTranscript('');
@@ -70,7 +83,11 @@ const AudioTranscriber: React.FC = () => {
         setTranscript('');
 
         try {
+<<<<<<< HEAD
             const resultTranscript = await transcriptionService.transcribeAudio(source);
+=======
+            const resultTranscript = await transcribeAudioWithGemini(source);
+>>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
             setTranscript(resultTranscript);
         } catch (e: any) {
             setError(e.message || 'Error al procesar la solicitud.');

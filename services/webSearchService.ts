@@ -30,6 +30,7 @@ export class WebSearchService {
         this.serpApiKey = import.meta.env?.VITE_SERP_API_KEY || '';
         this.newsApiKey = import.meta.env?.VITE_NEWS_API_KEY || '';
         
+<<<<<<< HEAD
         // Reset placeholder keys to empty to avoid API calls
         if (this.serpApiKey === 'tu_serp_api_key') {
             this.serpApiKey = '';
@@ -38,6 +39,8 @@ export class WebSearchService {
             this.newsApiKey = '';
         }
         
+=======
+>>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
         if (!this.serpApiKey && !this.newsApiKey) {
             console.warn('No search API keys configured. Using fallback search methods.');
         }
@@ -88,6 +91,7 @@ export class WebSearchService {
         const cached = await this.getCachedResponse<WebSearchResult[]>(cacheKey);
         if (cached) return cached;
 
+<<<<<<< HEAD
         // If no API keys available, return fallback immediately
         if (!this.newsApiKey && !this.serpApiKey) {
             console.warn('No search API keys available, using fallback results');
@@ -96,20 +100,27 @@ export class WebSearchService {
             return fallbackResults;
         }
 
+=======
+>>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
         try {
             let results: WebSearchResult[] = [];
 
             // Try NewsAPI first for news content
             if (this.newsApiKey) {
+<<<<<<< HEAD
                 try {
                     results = await this.searchWithNewsAPI(query, limit);
                 } catch (error) {
                     console.warn('NewsAPI search failed:', error);
                 }
+=======
+                results = await this.searchWithNewsAPI(query, limit);
+>>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
             }
 
             // If no results or no NewsAPI, try SerpAPI
             if (results.length === 0 && this.serpApiKey) {
+<<<<<<< HEAD
                 try {
                     results = await this.searchWithSerpAPI(query, limit);
                 } catch (error) {
@@ -121,6 +132,14 @@ export class WebSearchService {
             if (results.length === 0) {
                 console.warn('All search APIs failed, using fallback results');
                 results = this.getFallbackResults(query);
+=======
+                results = await this.searchWithSerpAPI(query, limit);
+            }
+
+            // If still no results, use DuckDuckGo as fallback
+            if (results.length === 0) {
+                results = await this.searchWithDuckDuckGo(query, limit);
+>>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
             }
 
             await this.cacheResponse(cacheKey, results);

@@ -1,8 +1,13 @@
 {
+<<<<<<< HEAD
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+=======
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+>>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
   "headers": [
     {
       "source": "/api/(.*)",

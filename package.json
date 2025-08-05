@@ -16,8 +16,11 @@
     "test:telegram": "node scripts/test-telegram.js",
     "update:news-api": "node scripts/update-news-api.js",
     "deploy:vercel": "node scripts/deploy-vercel.js",
+<<<<<<< HEAD
     "deploy:netlify": "node scripts/deploy-netlify.js",
     "setup:netlify-env": "node scripts/setup-netlify-env.js",
+=======
+>>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
     "deploy:setup": "chmod +x scripts/setup-deployment.sh && ./scripts/setup-deployment.sh",
     "deploy:web": "npm run build && vercel --prod",
     "deploy:web:preview": "npm run build && vercel",
@@ -62,5 +65,11 @@
     "vite": "^6.2.0",
     "vitest": "^1.3.1",
     "workbox-webpack-plugin": "^7.0.0"
+<<<<<<< HEAD
+=======
+  },
+  "engines": {
+    "node": "18.20.2"
+>>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
   }
 }
