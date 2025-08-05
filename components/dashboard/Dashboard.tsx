@@ -16,13 +16,25 @@ const Dashboard: React.FC = () => {
     const fetchFeed = async () => {
         setIsFeedLoading(true);
         try {
-            // Intentar obtener noticias reales de Telegram usando el número de teléfono
-            let messages = await telegramService.getRealTimeNews(['bcv_oficial', 'veneconomia', 'finanzasdigital', 'telesurve', 'efectococuyo'], 5);
+            // Canales oficiales y medios económicos venezolanos
+            const channels = [
+                'BCVZLA',           // Canal oficial del BCV
+                'veneconomia',      // VenEconomía
+                'finanzasdigital',  // Finanzas Digital
+                'telesurve',        // TeleSUR Venezuela
+                'efectococuyo',     // Efecto Cocuyo
+                'eluniversalweb',   // El Universal
+                'elimpulso',        // El Impulso
+                'bancaynegocios'    // Banca y Negocios
+            ];
+            
+            // Intentar obtener noticias reales de Telegram
+            let messages = await telegramService.getRealTimeNews(channels, 8);
             
             // Si no hay mensajes reales, intentar con el feed normal
             if (messages.length === 0) {
                 console.log("No se encontraron noticias reales, intentando con feed normal...");
-                messages = await telegramService.getMultiChannelFeed(['bcv_oficial', 'veneconomia', 'finanzasdigital', 'telesurve', 'efectococuyo'], 5);
+                messages = await telegramService.getMultiChannelFeed(channels, 8);
             }
             
             // Si aún no hay mensajes, mostrar un mensaje informativo
@@ -31,7 +43,8 @@ const Dashboard: React.FC = () => {
                     {
                         id: 1,
                         channel: 'sistema',
-                        text: 'No se encontraron mensajes en los canales monitoreados.',
+                        text: 'No se encontraron mensajes en los canales monitoreados. Verifique la conexión con Telegram.',
+                        link: 'https://t.me/BCVZLA',
                         timestamp: new Date().toLocaleDateString('es-VE')
                     }
                 ];

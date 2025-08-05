@@ -27,6 +27,7 @@ export interface TelegramMessage {
     channelUsername?: string; // Username del canal para construir el enlace
     telegramUrl?: string; // URL directa al mensaje en Telegram
     url?: string; // URL de la fuente original (si aplica)
+    link?: string; // Enlace directo al canal o mensaje
 }
 
 export interface NavigationItem {
