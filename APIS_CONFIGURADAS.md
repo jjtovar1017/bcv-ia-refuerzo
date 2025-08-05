@@ -10,41 +10,41 @@ Todas las APIs necesarias para el funcionamiento completo del Asistente de Medio
 ## 🔧 **APIs Principales**
 
 ### **1. Telegram API** 📱
-- **API ID**: `24872368`
-- **API Hash**: `530f9c024100d709ea0f7ce47f998a9a`
+- **API ID**: `tu_telegram_api_id`
+- **API Hash**: `tu_telegram_api_hash`
 - **Número de teléfono**: `+5804123868364`
 - **App Title**: `AsistenteComunicacionBCV`
 - **Estado**: ✅ **CONFIGURADO Y FUNCIONAL**
 - **Funcionalidad**: Noticias reales de canales venezolanos
 
 ### **2. Gemini API** 🤖
-- **API Key**: `AIzaSyA2ashMcxgh0v5fyi2c8WNbgWLU4e1sBeE`
+- **API Key**: `tu_gemini_api_key`
 - **Estado**: ✅ **CONFIGURADO Y FUNCIONAL**
 - **Funcionalidad**: Generación de contenido institucional
 
 ### **3. DeepSeek API** 🧠
-- **API Key**: `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`
+- **API Key**: `tu_deepseek_api_key`
 - **Estado**: ✅ **CONFIGURADO Y FUNCIONAL**
 - **Funcionalidad**: Análisis avanzado y procesamiento de texto
 
 ### **4. Mistral API** 🌟
-- **API Key**: `expFd0dF8dFMjJzMhDWpKpQbhW2plC5A`
+- **API Key**: `tu_mistral_api_key`
 - **Estado**: ✅ **CONFIGURADO Y FUNCIONAL**
 - **Funcionalidad**: Alternativa para generación de contenido
 
 ### **5. AssemblyAI** 🎤
-- **API Key**: `adc8f30c594f45f2bda5006b521c1d22`
+- **API Key**: `tu_assemblyai_api_key`
 - **Estado**: ✅ **CONFIGURADO Y FUNCIONAL**
 - **Funcionalidad**: Transcripción de audio en tiempo real
 
 ### **6. News API** 📰
-- **API Key**: `96e755c09a944dbb80c920a680ca5712`
+- **API Key**: `tu_news_api_key`
 - **Estado**: ✅ **CONFIGURADO Y FUNCIONAL**
 - **Funcionalidad**: Noticias adicionales de fuentes internacionales
 
 ### **7. Supabase** 🗄️
-- **URL**: `https://nrvtxgkkjmmvxyypybkt.supabase.co`
-- **API Key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+- **URL**: `tu_supabase_url`
+- **API Key**: `tu_supabase_anon_key`
 - **Estado**: ✅ **CONFIGURADO Y FUNCIONAL**
 - **Funcionalidad**: Base de datos y autenticación
 

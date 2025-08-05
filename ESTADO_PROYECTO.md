@@ -19,8 +19,8 @@ El Asistente de Medios BCV ha sido completamente revisado, configurado y optimiz
 - ✅ **News API**: Configurado para noticias adicionales
 
 ### **Credenciales de Telegram**
-- **API ID**: 24872368
-- **API Hash**: 530f9c024100d709ea0f7ce47f998a9a
+- **API ID**: tu_telegram_api_id
+- **API Hash**: tu_telegram_api_hash
 - **App Title**: AsistenteComunicacionBCV
 - **Short Name**: Asistente de Medios BCV
 

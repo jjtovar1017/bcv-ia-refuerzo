@@ -5,8 +5,8 @@
 ### Información Básica
 - **App title**: AsistenteComunicacionBCV
 - **Short name**: Asistente de Medios BCV
-- **API ID**: 24872368
-- **API Hash**: 530f9c024100d709ea0f7ce47f998a9a
+- **API ID**: tu_telegram_api_id
+- **API Hash**: tu_telegram_api_hash
 - **Número de teléfono**: +5804123868364
 
 ### Configuración de Servidores
@@ -44,8 +44,8 @@ t6N/byY9Nw9p21Og3AoXSL2q/2IJ1WRUhebgAdGVMlV1fkuOQoEzR7EdpqtQD9Cs
 ## Variables de Entorno Configuradas
 
 ```env
-VITE_TELEGRAM_API_ID=24872368
-VITE_TELEGRAM_API_HASH=530f9c024100d709ea0f7ce47f998a9a
+VITE_TELEGRAM_API_ID=tu_telegram_api_id
+VITE_TELEGRAM_API_HASH=tu_telegram_api_hash
 VITE_TELEGRAM_PHONE_NUMBER=+5804123868364
 ```
 
