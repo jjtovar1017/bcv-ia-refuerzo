@@ -14,7 +14,7 @@ import mammoth from 'mammoth';
 import { DocumentDuplicateIcon, DownloadIcon, UploadIcon, XCircleIcon, PhotoIcon, MagnifyingGlassIcon, CheckCircleIcon, ExclamationTriangleIcon, XMarkIcon, ExternalLinkIcon } from '../icons/Icons';
 
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.4.178/legacy/build/pdf.worker.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 const ContentGenerator: React.FC = () => {
     const [topic, setTopic] = useState('');
