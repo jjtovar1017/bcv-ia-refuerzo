@@ -96,27 +96,27 @@ const messages = await telegramService.getMultiChannelFeed(channels, limit);
 ### APIs Principales
 ```env
 # Google/Gemini (Requerido)
-VITE_GEMINI_API_KEY=your_gemini_api_key_here
+REDACTED
 
 # Telegram (Requerido para monitoreo)
-VITE_TELEGRAM_API_ID=your_telegram_api_id
-VITE_TELEGRAM_API_HASH=your_telegram_api_hash
-VITE_TELEGRAM_BOT_TOKEN=your_bot_token_here
-VITE_TELEGRAM_PHONE_NUMBER=+5804123868364
+REDACTED
+REDACTED
+REDACTED
+REDACTED
 ```
 
 ### APIs Opcionales (Mejoran funcionalidad)
 ```env
 # Búsqueda web
-VITE_NEWS_API_KEY=your_news_api_key
-VITE_SERP_API_KEY=your_serpapi_key_here
+REDACTED
+REDACTED
 
 # YouTube
-VITE_YOUTUBE_API_KEY=your_youtube_api_key_here
+REDACTED
 
 # Otras IAs
-VITE_DEEPSEEK_API_KEY=your_deepseek_api_key
-VITE_MISTRAL_API_KEY=your_mistral_api_key
+REDACTED
+REDACTED
 ```
 
 ## 🚀 Deployment a Vercel

@@ -57,31 +57,31 @@ vercel env add VITE_SUPABASE_KEY production
 vercel env add VITE_NEWS_API_KEY production
 # Ingresar: tu_news_api_key
 =======
-# Ingresar: AIzaSyA2ashMcxgh0v5fyi2c8WNbgWLU4e1sBeE
+# Ingresar: REDACTED
 
 vercel env add VITE_TELEGRAM_API_ID production
 # Ingresar: 24872368
 
 vercel env add VITE_TELEGRAM_API_HASH production
-# Ingresar: 530f9c024100d709ea0f7ce47f998a9a
+# Ingresar: REDACTED
 
 vercel env add VITE_DEEPSEEK_API_KEY production
-# Ingresar: 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
+# Ingresar: REDACTED-v1-cf228bddb366ebe43003937b8b9a935a95bf591651514f153b46c04af5da43fa
 
 vercel env add VITE_MISTRAL_API_KEY production
 # Ingresar: expFd0dF8dFMjJzMhDWpKpQbhW2plC5A
 
 vercel env add VITE_ASSEMBLYAI_API_KEY production
-# Ingresar: adc8f30c594f45f2bda5006b521c1d22
+# Ingresar: REDACTED
 
 vercel env add VITE_SUPABASE_URL production
 # Ingresar: https://nrvtxgkkjmmvxyypybkt.supabase.co
 
 vercel env add VITE_SUPABASE_KEY production
-# Ingresar: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+# Ingresar: REDACTED...
 
 vercel env add VITE_NEWS_API_KEY production
-# Ingresar: 96e755c09a944dbb80c920a680ca5712
+# Ingresar: REDACTED
 >>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
 ```
 
@@ -117,25 +117,25 @@ vercel --prod
 ### **APIs Configuradas**
 ```env
 <<<<<<< HEAD
-VITE_GEMINI_API_KEY=tu_gemini_api_key
-VITE_TELEGRAM_API_ID=tu_telegram_api_id
-VITE_TELEGRAM_API_HASH=tu_telegram_api_hash
-VITE_DEEPSEEK_API_KEY=tu_deepseek_api_key
-VITE_MISTRAL_API_KEY=tu_mistral_api_key
-VITE_ASSEMBLYAI_API_KEY=tu_assemblyai_api_key
-VITE_SUPABASE_URL=tu_supabase_url
-VITE_SUPABASE_KEY=tu_supabase_anon_key
-VITE_NEWS_API_KEY=tu_news_api_key
+REDACTED
+REDACTED
+REDACTED
+REDACTED
+REDACTED
+REDACTED
+REDACTED
+REDACTED
+REDACTED
 =======
-VITE_GEMINI_API_KEY=AIzaSyA2ashMcxgh0v5fyi2c8WNbgWLU4e1sBeE
-VITE_TELEGRAM_API_ID=24872368
-VITE_TELEGRAM_API_HASH=530f9c024100d709ea0f7ce47f998a9a
-VITE_DEEPSEEK_API_KEY=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
-VITE_MISTRAL_API_KEY=expFd0dF8dFMjJzMhDWpKpQbhW2plC5A
-VITE_ASSEMBLYAI_API_KEY=adc8f30c594f45f2bda5006b521c1d22
-VITE_SUPABASE_URL=https://nrvtxgkkjmmvxyypybkt.supabase.co
-VITE_SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-VITE_NEWS_API_KEY=96e755c09a944dbb80c920a680ca5712
+REDACTED
+REDACTED
+REDACTED
+REDACTED
+REDACTED
+REDACTED
+REDACTED
+REDACTED
+REDACTED
 >>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
 ```
 

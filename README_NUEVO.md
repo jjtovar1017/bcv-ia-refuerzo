@@ -48,25 +48,25 @@ Luego edita el archivo `.env` con tus credenciales:
 
 ```env
 # AI Services
-VITE_GEMINI_API_KEY=tu_gemini_api_key
-VITE_DEEPSEEK_API_KEY=tu_deepseek_api_key
-VITE_MISTRAL_API_KEY=tu_mistral_api_key
+REDACTED
+REDACTED
+REDACTED
 
 # Telegram Configuration
-VITE_TELEGRAM_API_ID=tu_telegram_api_id
-VITE_TELEGRAM_API_HASH=tu_telegram_api_hash
-VITE_TELEGRAM_PHONE_NUMBER=+5804123868364
-VITE_TELEGRAM_BOT_TOKEN=tu_telegram_bot_token
+REDACTED
+REDACTED
+REDACTED
+REDACTED
 
 # News API
-VITE_NEWS_API_KEY=tu_news_api_key
+REDACTED
 
 # AssemblyAI for Audio Transcription
-VITE_ASSEMBLYAI_API_KEY=tu_assemblyai_api_key
+REDACTED
 
 # Supabase Configuration
-VITE_SUPABASE_URL=tu_supabase_url
-VITE_SUPABASE_KEY=tu_supabase_anon_key
+REDACTED
+REDACTED
 ```
 
 ### 5. Obtener Credenciales de API

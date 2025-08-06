@@ -24,7 +24,7 @@ El Asistente de Medios BCV ha sido completamente revisado, configurado y optimiz
 - **API Hash**: tu_telegram_api_hash
 =======
 - **API ID**: 24872368
-- **API Hash**: 530f9c024100d709ea0f7ce47f998a9a
+- **API Hash**: REDACTED
 >>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
 - **App Title**: AsistenteComunicacionBCV
 - **Short Name**: Asistente de Medios BCV

@@ -22,16 +22,16 @@ async function updateNewsAPI() {
         let envContent = fs.readFileSync(envPath, 'utf8');
         
         // Actualizar la News API Key
-        const newApiKey = '96e755c09a944dbb80c920a680ca5712';
+        const newApiKey = 'REDACTED';
         
         // Reemplazar la línea existente o agregar una nueva
-        if (envContent.includes('VITE_NEWS_API_KEY=')) {
+        if (envContent.includes('REDACTED {
             envContent = envContent.replace(
-                /VITE_NEWS_API_KEY=.*/,
-                `VITE_NEWS_API_KEY=${newApiKey}`
+                /REDACTED
+                `REDACTED
             );
         } else {
-            envContent += `\nVITE_NEWS_API_KEY=${newApiKey}`;
+            envContent += `\nREDACTED
         }
         
         // Escribir el archivo actualizado

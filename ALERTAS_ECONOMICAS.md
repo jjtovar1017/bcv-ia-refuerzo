@@ -168,11 +168,11 @@ interface ImpactAnalysis {
 ### **Variables de Entorno Requeridas**
 ```bash
 # APIs principales (requeridas)
-VITE_NEWS_API_KEY=your_news_api_key
-VITE_SERP_API_KEY=your_serpapi_key_here
+REDACTED
+REDACTED
 
 # APIs opcionales (mejoran funcionalidad)
-VITE_GEMINI_API_KEY=your_gemini_api_key_here
+REDACTED
 ```
 
 ### **Configuración de Búsqueda**

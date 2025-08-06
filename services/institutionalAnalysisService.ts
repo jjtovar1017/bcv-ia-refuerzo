@@ -213,7 +213,7 @@ export class InstitutionalAnalysisService {
 
         } catch (error) {
             Sentry.captureException(error, {
-                tags: { component: 'institutional-analysis', operation: 'risk-analysis' }
+                tags: { component: 'institutional-analysis', operation: 'riREDACTED' }
             });
 
             // Fallback analysis

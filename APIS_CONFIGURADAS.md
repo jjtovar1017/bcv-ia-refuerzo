@@ -15,7 +15,7 @@ Todas las APIs necesarias para el funcionamiento completo del Asistente de Medio
 - **API Hash**: `tu_telegram_api_hash`
 =======
 - **API ID**: `24872368`
-- **API Hash**: `530f9c024100d709ea0f7ce47f998a9a`
+- **API Hash**: `REDACTED`
 >>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
 - **Número de teléfono**: `+5804123868364`
 - **App Title**: `AsistenteComunicacionBCV`
@@ -26,7 +26,7 @@ Todas las APIs necesarias para el funcionamiento completo del Asistente de Medio
 <<<<<<< HEAD
 - **API Key**: `tu_gemini_api_key`
 =======
-- **API Key**: `AIzaSyA2ashMcxgh0v5fyi2c8WNbgWLU4e1sBeE`
+- **API Key**: `REDACTED`
 >>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
 - **Estado**: ✅ **CONFIGURADO Y FUNCIONAL**
 - **Funcionalidad**: Generación de contenido institucional
@@ -35,7 +35,7 @@ Todas las APIs necesarias para el funcionamiento completo del Asistente de Medio
 <<<<<<< HEAD
 - **API Key**: `tu_deepseek_api_key`
 =======
-- **API Key**: `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`
+- **API Key**: `REDACTED-v1-cf228bddb366ebe43003937b8b9a935a95bf591651514f153b46c04af5da43fa`
 >>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
 - **Estado**: ✅ **CONFIGURADO Y FUNCIONAL**
 - **Funcionalidad**: Análisis avanzado y procesamiento de texto
@@ -53,7 +53,7 @@ Todas las APIs necesarias para el funcionamiento completo del Asistente de Medio
 <<<<<<< HEAD
 - **API Key**: `tu_assemblyai_api_key`
 =======
-- **API Key**: `adc8f30c594f45f2bda5006b521c1d22`
+- **API Key**: `REDACTED`
 >>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
 - **Estado**: ✅ **CONFIGURADO Y FUNCIONAL**
 - **Funcionalidad**: Transcripción de audio en tiempo real
@@ -62,7 +62,7 @@ Todas las APIs necesarias para el funcionamiento completo del Asistente de Medio
 <<<<<<< HEAD
 - **API Key**: `tu_news_api_key`
 =======
-- **API Key**: `96e755c09a944dbb80c920a680ca5712`
+- **API Key**: `REDACTED`
 >>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
 - **Estado**: ✅ **CONFIGURADO Y FUNCIONAL**
 - **Funcionalidad**: Noticias adicionales de fuentes internacionales
@@ -73,7 +73,7 @@ Todas las APIs necesarias para el funcionamiento completo del Asistente de Medio
 - **API Key**: `tu_supabase_anon_key`
 =======
 - **URL**: `https://nrvtxgkkjmmvxyypybkt.supabase.co`
-- **API Key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+- **API Key**: `REDACTED...`
 >>>>>>> 0d38ca5586e0d0883fe98444281ec01408abba36
 - **Estado**: ✅ **CONFIGURADO Y FUNCIONAL**
 - **Funcionalidad**: Base de datos y autenticación

@@ -73,28 +73,28 @@ async function setupAPIs() {
 # Generated on ${new Date().toISOString()}
 
 # AI Services
-VITE_GEMINI_API_KEY=${geminiApiKey}
-VITE_DEEPSEEK_API_KEY=${deepSeekApiKey}
-VITE_MISTRAL_API_KEY=${mistralApiKey}
+REDACTED
+REDACTED
+REDACTED
 
 # Telegram Configuration
-VITE_TELEGRAM_API_ID=${telegramApiId}
-VITE_TELEGRAM_API_HASH=${telegramApiHash}
-VITE_TELEGRAM_PHONE_NUMBER=+5804123868364
-VITE_TELEGRAM_BOT_TOKEN=${telegramBotToken}
+REDACTED
+REDACTED
+REDACTED
+REDACTED
 
 # News API
-VITE_NEWS_API_KEY=${newsApiKey}
+REDACTED
 
 # AssemblyAI for Audio Transcription
-VITE_ASSEMBLYAI_API_KEY=${assemblyAiApiKey}
+REDACTED
 
 # Supabase Configuration
-VITE_SUPABASE_URL=${supabaseUrl}
-VITE_SUPABASE_KEY=${supabaseKey}
+REDACTED
+REDACTED
 
 # GPS Tracking Services (opcional)
-VITE_TRACCAR_API_URL=http://localhost:8082/api
+REDACTED
 VITE_TRACCAR_API_KEY=
 VITE_GPSGATE_API_URL=
 VITE_GPSGATE_API_KEY=
@@ -102,13 +102,13 @@ VITE_FLEETCOMPLETE_API_URL=
 VITE_FLEETCOMPLETE_API_KEY=
 
 # WebSocket Configuration
-VITE_WS_URL=ws://localhost:3001
+REDACTED
 
 # Sentry Configuration (opcional)
 VITE_SENTRY_DSN=
 
 # Environment
-VITE_NODE_ENV=development
+REDACTED
 `;
 
     // Write .env file

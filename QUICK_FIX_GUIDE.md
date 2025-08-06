@@ -13,7 +13,7 @@ cd "c:\Users\LP450085W1\Documents\asistente-de-medios-bcv"
 # Variables críticas que faltan:
 netlify env:set VITE_TELEGRAM_API_ID "tu_telegram_api_id"
 netlify env:set VITE_TELEGRAM_API_HASH "tu_telegram_api_hash"  
-netlify env:set VITE_ASSEMBLYAI_API_KEY "adc8f30c594f45f2bda5006b521c1d22"
+netlify env:set VITE_ASSEMBLYAI_API_KEY "REDACTED"
 netlify env:set VITE_SERP_API_KEY "tu_serp_api_key"
 netlify env:set VITE_TELEGRAM_BOT_TOKEN "tu_telegram_bot_token"
 netlify env:set VITE_SUPABASE_URL "tu_supabase_url"
