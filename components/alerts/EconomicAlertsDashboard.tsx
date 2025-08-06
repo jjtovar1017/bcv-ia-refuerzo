@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { economicAlertsService, EconomicAlert, AlertsFilter } from '../../services/economicAlertsService';
+import { getEconomicNewsFallback, EconomicNewsFallback } from '../../services/economicNewsFallbackService';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import { 
@@ -20,6 +21,7 @@ interface EconomicAlertsDashboardProps {
 
 const EconomicAlertsDashboard: React.FC<EconomicAlertsDashboardProps> = ({ className }) => {
   const [alerts, setAlerts] = useState<EconomicAlert[]>([]);
+  const [fallbackNews, setFallbackNews] = useState<EconomicNewsFallback[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedAlert, setSelectedAlert] = useState<EconomicAlert | null>(null);
@@ -29,6 +31,15 @@ const EconomicAlertsDashboard: React.FC<EconomicAlertsDashboardProps> = ({ class
   useEffect(() => {
     loadAlerts();
   }, [filter]);
+
+  // Si no hay alertas del backend, buscar noticias económicas
+  useEffect(() => {
+    if (!alerts.length && !isLoading) {
+      getEconomicNewsFallback().then(setFallbackNews);
+    } else {
+      setFallbackNews([]);
+    }
+  }, [alerts, isLoading]);
 
   const loadAlerts = async () => {
     setIsLoading(true);
@@ -510,10 +521,27 @@ const EconomicAlertsDashboard: React.FC<EconomicAlertsDashboardProps> = ({ class
           <Button onClick={loadAlerts}>Reintentar</Button>
         </div>
       ) : alerts.length === 0 ? (
-        <div className="text-center py-12">
-          <BellIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">No hay alertas económicas disponibles</p>
-        </div>
+        fallbackNews.length ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {fallbackNews.map((news, i) => (
+              <div key={i} className="border rounded-lg p-4 bg-yellow-50 border-yellow-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <GlobeAltIcon className="w-5 h-5 text-yellow-600" />
+                  <span className="text-xs font-semibold bg-yellow-200 text-yellow-800 rounded px-2 py-0.5">Fuente externa</span>
+                  <span className="text-xs text-bcv-blue">{news.source}</span>
+                </div>
+                <a href={news.link} target="_blank" rel="noopener noreferrer" className="font-bold hover:underline block mb-1">{news.title}</a>
+                {news.summary && <div className="text-xs text-bcv-gray-700 line-clamp-2 mb-1">{news.summary}</div>}
+                {news.date && <div className="text-xs text-bcv-gray-400">{news.date.slice(0, 16)}</div>}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <BellIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600">No hay alertas económicas disponibles</p>
+          </div>
+        )
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {alerts.map((alert) => (
