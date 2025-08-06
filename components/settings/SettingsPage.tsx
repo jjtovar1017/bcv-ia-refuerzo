@@ -29,7 +29,20 @@ const ApiKeyDisplay: React.FC<ApiKeyDisplayProps> = ({ name, value, status }) =>
 };
 
 
+import { useState, useEffect } from 'react';
+import { NEWS_SOURCE_LABELS, NewsSourceType } from '../../types/news';
+
+const NEWS_SOURCE_KEY = 'news_source_type';
+
 const SettingsPage: React.FC = () => {
+    const [newsSource, setNewsSource] = useState<NewsSourceType>(() => {
+        return (localStorage.getItem(NEWS_SOURCE_KEY) as NewsSourceType) || 'newsapi';
+    });
+
+    useEffect(() => {
+        localStorage.setItem(NEWS_SOURCE_KEY, newsSource);
+    }, [newsSource]);
+
     return (
         <div className="max-w-2xl mx-auto">
             <Card title="Configuración del Sistema">
@@ -42,6 +55,19 @@ const SettingsPage: React.FC = () => {
                     </div>
 
                     <div className="space-y-4 p-4 border border-bcv-gray-200 rounded-lg">
+                        <div>
+                            <label className="block text-sm font-medium text-bcv-dark mb-1">Fuente de Noticias</label>
+                            <select
+                                className="block w-full mt-1 border border-bcv-gray-300 rounded-md p-2 text-bcv-dark"
+                                value={newsSource}
+                                onChange={e => setNewsSource(e.target.value as NewsSourceType)}
+                            >
+                                {Object.entries(NEWS_SOURCE_LABELS).map(([key, label]) => (
+                                    <option key={key} value={key}>{label}</option>
+                                ))}
+                            </select>
+                            <span className="text-xs text-bcv-gray-600 mt-1 block">Actualmente: <b>{NEWS_SOURCE_LABELS[newsSource]}</b></span>
+                        </div>
                         <ApiKeyDisplay 
                             name="Google Gemini API Key" 
                             value="Variable: process.env.API_KEY"

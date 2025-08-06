@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import * as Sentry from '@sentry/react';
 import { EconomicNewsResult, GroundingSource, NewsSearchType } from '../types';
+import { NewsSourceType } from '../types/news';
 
 export interface NewsAPIArticle {
     source: {
@@ -37,12 +38,19 @@ export class NewsService {
     private readonly cacheTimeout: number = 1800000; // 30 minutes
     private readonly cachePrefix: string = 'news_cache_';
 
+    private apitubeApiKey: string;
+    private apitubeClient: AxiosInstance;
+
     constructor() {
         this.newsApiKey = import.meta.env?.VITE_NEWS_API_KEY || '';
+        this.apitubeApiKey = import.meta.env?.VITE_APITUBE_API_KEY || '';
         
         if (!this.newsApiKey || this.newsApiKey === 'demo_key_for_testing') {
             console.warn('NEWS_API_KEY not configured or using demo key. Service will use fallback mode.');
             this.newsApiKey = ''; // Reset demo key to empty to avoid API calls
+        }
+        if (!this.apitubeApiKey) {
+            console.warn('APITube API key not configured. APITube fallback deshabilitado.');
         }
 
         // NewsAPI client
@@ -51,7 +59,15 @@ export class NewsService {
             timeout: 30000,
             headers: {
                 'X-API-Key': this.newsApiKey
-                // Removed User-Agent header as it's not allowed in browsers
+            }
+        });
+
+        // APITube client
+        this.apitubeClient = axios.create({
+            baseURL: 'https://api.apitube.io/v1',
+            timeout: 30000,
+            headers: {
+                'Authorization': `Bearer ${this.apitubeApiKey}`
             }
         });
 
@@ -59,7 +75,6 @@ export class NewsService {
         this.exchangeApiClient = axios.create({
             baseURL: 'https://api.exchangerate-api.com/v4',
             timeout: 15000
-            // Removed User-Agent header as it's not allowed in browsers
         });
 
         this.setupInterceptors();
@@ -150,146 +165,21 @@ export class NewsService {
     }
 
     /**
+     * Get current news source type from localStorage
+     */
+    private getSelectedNewsSource(): NewsSourceType {
+        if (typeof window !== 'undefined') {
+            return (localStorage.getItem('news_source_type') as NewsSourceType) || 'newsapi';
+        }
+        return 'newsapi';
+    }
+
+    /**
      * Get economic news based on search type
      */
     public async getEconomicNews(searchType: NewsSearchType): Promise<EconomicNewsResult> {
+        const newsSource = this.getSelectedNewsSource();
         const cacheKey = `economic_news_${searchType}`;
-        const cached = await this.getCachedResponse<EconomicNewsResult>(cacheKey);
-        if (cached) return cached;
-
-        // If no API key, return fallback immediately
-        if (!this.newsApiKey) {
-            console.warn('News API key not available, using fallback data');
-            return this.getFallbackEconomicResult(searchType);
-        }
-
-        try {
-            const query = this.getSearchQuery(searchType);
-            const sources = this.getRelevantSources(searchType);
-            
-            const response = await this.newsApiClient.get('/everything', {
-                params: {
-                    q: query,
-                    sources: sources,
-                    language: 'es',
-                    sortBy: 'publishedAt',
-                    pageSize: 20,
-                    from: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() // Last 7 days
-                }
-            });
-
-            let articles: NewsAPIArticle[] = [];
-            if (response.data.status === 'ok' && response.data.articles) {
-                articles = response.data.articles;
-            }
-
-            // If no results from API, use fallback data
-            if (articles.length === 0) {
-                console.warn('No articles from News API, using fallback data');
-                articles = this.getFallbackNews(searchType);
-            }
-
-            const result: EconomicNewsResult = {
-                summary: this.generateSummary(articles, searchType),
-                sources: articles.slice(0, 10).map(article => ({
-                    title: article.title,
-                    uri: article.url,
-                    snippet: article.description || ''
-                })),
-                searchType,
-                totalResults: articles.length,
-                lastUpdated: new Date().toISOString()
-            };
-
-            await this.cacheResponse(cacheKey, result);
-            return result;
-
-        } catch (error) {
-            // Check if it's a specific API error (426, 429, etc.)
-            const isApiError = error.response?.status === 426 || error.response?.status === 429 || error.response?.status === 403;
-            
-            if (isApiError) {
-                console.warn(`News API returned ${error.response.status}, using fallback data`);
-            } else {
-                console.error('Failed to fetch economic news:', error);
-                Sentry.captureException(error);
-            }
-            
-            // Return fallback result for any error
-            return this.getFallbackEconomicResult(searchType);
-        }
-    }
-
-    /**
-     * Get current exchange rates
-     */
-    public async getExchangeRates(): Promise<ExchangeRateData> {
-        const cacheKey = 'exchange_rates_usd';
-        const cached = await this.getCachedResponse<ExchangeRateData>(cacheKey);
-        if (cached) return cached;
-
-        try {
-            const response = await this.exchangeApiClient.get('/latest/USD');
-            const data: ExchangeRateData = response.data;
-            
-            await this.cacheResponse(cacheKey, data);
-            return data;
-        } catch (error) {
-            Sentry.captureException(error);
-            console.error('Failed to fetch exchange rates:', error);
-            
-            // Return fallback exchange rates
-            return {
-                rates: {
-                    VES: 36.50, // Approximate current rate
-                    EUR: 0.85,
-                    GBP: 0.73,
-                    JPY: 110.0,
-                    CAD: 1.25
-                },
-                base: 'USD',
-                date: new Date().toISOString().split('T')[0]
-            };
-        }
-    }
-
-    /**
-     * Get Venezuelan economic indicators
-     */
-    public async getVenezuelanIndicators(): Promise<any> {
-        const cacheKey = 'venezuelan_indicators';
-        const cached = await this.getCachedResponse(cacheKey);
-        if (cached) return cached;
-
-        try {
-            // Try to get real data from BCV or other Venezuelan sources
-            const indicators = {
-                exchangeRate: 36.50, // USD/VES
-                inflationRate: 234.1, // Annual %
-                oilPrice: 75.80, // USD per barrel
-                goldReserves: 1200, // Tons
-                lastUpdated: new Date().toISOString(),
-                sources: [
-                    'Banco Central de Venezuela',
-                    'OPEC',
-                    'Reuters'
-                ]
-            };
-
-            await this.cacheResponse(cacheKey, indicators);
-            return indicators;
-        } catch (error) {
-            Sentry.captureException(error);
-            console.error('Failed to fetch Venezuelan indicators:', error);
-            throw new Error('Failed to fetch economic indicators');
-        }
-    }
-
-    /**
-     * Search news by keyword
-     */
-    public async searchNews(keyword: string, category?: string): Promise<EconomicNewsResult> {
-        const cacheKey = `search_news_${keyword}_${category || 'all'}`;
         const cached = await this.getCachedResponse<EconomicNewsResult>(cacheKey);
         if (cached) return cached;
 
