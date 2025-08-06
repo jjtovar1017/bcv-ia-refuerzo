@@ -31,6 +31,7 @@
     "@sentry/react": "^8.0.0",
     "@sentry/tracing": "^7.99.0",
     "axios": "^1.6.7",
+    "canvas": "^3.1.2",
     "dotenv": "^17.2.1",
     "jspdf": "^2.5.1",
     "leaflet": "^1.9.4",
